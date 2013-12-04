@@ -1,0 +1,24 @@
+gettextString = {
+    fr:{
+        ref:[
+            "Verification updates",
+            "Update available; Download and install the update",
+            "Success of the download; closing the application to finish updating",
+            "ERROR (Download) : %s",
+            "Download applies too early !",
+            "No update available.",
+            "ERROR (Verification updates) : %s",
+            "ERROR (getSelf ()) : %s"
+        ],
+        trad:[
+            "Verification des mises à jour",
+            "Mise à jour disponible; Telechargement et installation de la mise à jour",
+            "Succes du telechargement; Fermeture de l'application pour finir la mise à jour",
+            "Telechargement applique trop tot !",
+            "ERREUR (Telechargement) : %s",
+            "Aucune mise a jour disponible.",
+            "ERREUR (Verification des mises à jour) : %s",
+            "ERREUR (getSelf()) : %s"
+        ]
+    }
+};

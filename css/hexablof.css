@@ -1,0 +1,42 @@
+html, body, #body {
+	background: #000000;
+	margin: 0 auto;
+	height: 100%;
+	padding: 1px;
+	position: relative;
+	overflow: hidden;
+}
+#body {
+	overflow: visible;
+}
+
+#roll, #pitch, #yaw, .block {
+	display: block;
+	position: absolute;
+	transform-style: preserve-3d;
+}
+
+#roll {
+	/*transform: rotateX(-35deg);*/
+}
+
+#pitch {
+	transform: rotateX(-35deg);
+}
+
+#yaw {
+	transform: rotateY(45deg);
+	margin: 0px;
+}
+
+.block {
+	display: block;
+	position: absolute;
+}
+
+.face {
+	backface-visibility: hidden;
+	display: block;
+	position: absolute;
+    -moz-box-sizing: padding-box;
+}
