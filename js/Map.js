@@ -38,8 +38,8 @@ var Map = Class.extend({
             $block.find('.top').css({transform: 'translateY(-'+(this.hexagrid.side/2)+'px) rotateX( 90deg)'});
             
             s0 = 0;
-            s1 = 10;
-            s2 = 20;
+            s1 = 45;
+            s2 = 90;
             s3 = 100;
             
             $block.find('.fro').css('background', 'linear-gradient(  45deg, rgb('+(color[id].R-s3-s2)+','+(color[id].V-s3-s2)+','+(color[id].B-s3-s2)+') -50%,rgb('+(color[id].R-s2)+','+(color[id].V-s2)+','+(color[id].B-s2)+') 150%)');

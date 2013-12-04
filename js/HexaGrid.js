@@ -117,7 +117,11 @@ var HexaGrid = Class.extend({
 	        	transform: 'translateY( '+(this.side/2)+'px) rotateX( 90deg)',
 	        	background: 'linear-gradient(-130deg, rgb('+(color.R-s3-s0)+','+(color.V-s3-s0)+','+(color.B-s3-s0)+') 0%,rgb('+(color.R-s0)+','+(color.V-s0)+','+(color.B-s0)+') 200%)'
 	        });
-           
+	        /*
+		        background: 'linear-gradient(  45deg, #080808 0%,#0f0f0f 50%,#151515 100%)'
+		        background: 'linear-gradient( -45deg, #131313 0%,#171717 50%,#1b1b1b 100%)'
+		        background: 'linear-gradient(-130deg, #131313 0%,#171717 50%,#1b1b1b 100%)'
+           */
         
 	    }
     	
