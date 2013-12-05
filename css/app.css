@@ -6,3 +6,29 @@ html, body, #body {
 	position: relative;
 	overflow: hidden;
 }
+
+
+.message {
+    border: 5px solid #FFFFFF;
+    border-radius: 6px;
+    color: #FFFFFF;
+    display: inline-block;
+    font-family: monospace;
+    font-size: 153%;
+    font-weight: bold;
+    padding: 1% 5%;
+    position: absolute;
+    text-transform: uppercase;
+}
+.message.install {
+    background: none repeat scroll 0 0 #B3C675;
+    box-shadow: 0 0 25px #4A5D0C inset, 0 0 6px #4A5D0C;
+    left: 13%;
+    top: 43%;
+}
+.message.skip {
+    background: none repeat scroll 0 0 #F7E9B2;
+    box-shadow: 0 0 25px #93854E inset, 0 0 6px #4A5D0C;
+    left: 61%;
+    top: 57%;
+}
