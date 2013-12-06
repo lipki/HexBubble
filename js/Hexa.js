@@ -1,21 +1,19 @@
 var Hexa = Class.extend({
 	
-	init: function( css, x, y, px, py, side, color )  {
+	init: function( css, x, y, side, color )  {
 		
 		this.css = css;
         this.x = x;
         this.y = y;
-        this.px = px;
-        this.py = py;
         this.side = side;
         this.classPosX = 'x_'+x;
         this.classPosY = 'y_'+y;
         
         this.clas = '.'+this.classPosX+'.'+this.classPosY;
         
-        this.tZ = px*side + Math.ceil(py/2)*side;
-        this.tX = px*side - Math.ceil((py-1.5)/2)*side;
-        this.tY = py*side;
+        this.tZ = x*side + Math.ceil(y/2)*side;
+        this.tX = x*side - Math.ceil((y-1.5)/2)*side;
+        this.tY = y*side;
     	
 	    css.insertTagRule('.face', 'allface',
 	    	'height: 0px',
@@ -90,6 +88,7 @@ var Hexa = Class.extend({
         s1 = 5;
         s2 = 10;
         s3 = 100;
+        s4 = 50;
         
         $(this.clas).addClass('id_'+id);
 		

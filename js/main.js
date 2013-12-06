@@ -1,3 +1,6 @@
+Math.odd = function( num ){
+    return Math.ceil(num/2) != (num/2);
+};
 
 var requestAnimFrame = (function(){
     return window.requestAnimationFrame    ||

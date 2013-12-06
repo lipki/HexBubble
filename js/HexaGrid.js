@@ -32,16 +32,31 @@ var HexaGrid = Class.extend({
     	this.css.insertRule('#roll','left:'+(this.navWidth/2)+'px','top:'+(this.navHeight/2)+'px');
     	
     	if( this.navWidth > this.navHeight ) {
+    		
 	    	this.css.insertRule('#roll','transform:translateY('+this.height+'px) rotateZ(-90deg)');
     		this.height = this.navWidth;
     		this.width = this.navHeight;
-    	}
+		}
+		
+		var offsetWidth = this.width/2; //middle
+		offsetWidth -= this.demiWidthCube*(this.column-.5); // décentrage
+		
+		var offsetHeight = this.height/2; //middle
+		offsetHeight -= this.heightCube*((this.line-1)*.75); // décentrage
+    	
+    	if( this.navWidth > this.navHeight ) {
+	    	this.css.insertRule('#roll','top:'+offsetWidth+'px');
+	    	this.css.insertRule('#roll','left:'+offsetHeight+'px');
+    	} else {
+	    	this.css.insertRule('#roll','left:'+offsetWidth+'px');
+    		this.css.insertRule('#roll','top:'+offsetHeight+'px');
+		}
     	
 	},
 	
 	calculating: function() {
 		
-	    this.widthCube = this.width/(this.column+.5);
+	    this.widthCube = this.width/(this.column+1);
 	    this.demiWidthCube = this.widthCube/2;
 	    this.heightCube = this.demiWidthCube/Math.cos(Math.PI*30/180);
 	    this.side = this.heightCube*1.227; // valeur mystérieuse
@@ -51,13 +66,12 @@ var HexaGrid = Class.extend({
 	    this.lineHeight = (this.heightCube/2)*(this.line*3+1);
 	    this.lineStart = (this.height-this.lineHeight)/2;
 	    this.linesup = Math.ceil(this.lineStart/this.heightCube);
-		
+	    
 	},
 	
 	reset: function( column, line, color )  {
 		
     	this.css.reset();
-    	this.initCSS();
         
         this.column = column;
         this.line = line;
@@ -66,47 +80,15 @@ var HexaGrid = Class.extend({
 	    
 	    if( this.maxLine < line ) return false;
 	    
-	    	/*this.$idbody.append('<div id="grille" style="position:absolute"></div>');
-	    	
-		    for( var x = 0 ; x <= column-1 ; x ++)
-		    for( var y = 0 ; y <= line-1 ; y ++) {
-		        
-		        var $circle = $('<div class="circle x_'+x+' y_'+y+'"></div>');
-		        $('#grille').append($circle);
-		        $circle.css({
-		        	border: '1px solid #fff',
-		        	opacity:.5,
-		        	borderRadius: '100px',
-		        	width: this.widthCube,
-		        	height: this.heightCube*2,
-		        	position: 'absolute',
-		        	top: y*(this.heightCube*2)/4*3+lineStart+this.widthCube/2,
-		        	left: x*this.widthCube + ( Math.ceil(y/2) != (y/2) ? demiWidthCube : 0) + this.heightCube,
-		        	margin: (-this.widthCube/2)+'px '+(-this.heightCube)+'px'
-		        });
-            	
-		    }*/
-		
-    	if( this.navWidth > this.navHeight ) {
-	    	this.css.insertRule('#roll','top:'+(-this.width/2-this.demiWidthCube/2)+'px');
-    		if( Math.ceil(line/2) == (line/2) )
-	    		this.css.insertRule('#roll','left:'+(this.height/2+this.heightCube*.75)+'px');
-    	} else {
-	    	this.css.insertRule('#roll','left:'+(this.width/2+this.demiWidthCube/2)+'px');
-    		if( Math.ceil(line/2) == (line/2) )
-	    		this.css.insertRule('#roll','top:'+(this.height/2+this.heightCube*.75)+'px');
-		}
+    	this.initCSS();
 	    
-	    for( var x = -1 ; x <= column-1 ; x ++) {
+	    for( var x = -1 ; x <= column ; x ++) {
 	    	
 	    	this.grid[x] = [];
 	    	
 		    for( var y = -this.linesup ; y <= line-1+this.linesup ; y ++) {
 		    	
-		    	var px = x - column/2 +.5;
-		    	var py = y - Math.floor(line/2);
-		    	
-		    	this.grid[x][y] = new Hexa( this.css, x, y, px, py, this.side, color );
+		    	this.grid[x][y] = new Hexa( this.css, x, y, this.side, color );
 		    	this.$yaw.append( $( this.grid[x][y].render() ) );
 	            
 		    }
