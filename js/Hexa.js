@@ -76,6 +76,7 @@ var Hexa = Class.extend({
         var side = this.side;
         var classPosX = this.classPosX;
         var classPosY = this.classPosY;
+        var classPos = this.classPos;
 		
 		// render
 		
@@ -84,6 +85,19 @@ var Hexa = Class.extend({
         render += '<figure class="face border '+classPosX+' '+classPosY+' rig"></figure>';
         render += '<figure class="face border '+classPosX+' '+classPosY+' top"></figure>';
         target.append(render);
+        
+        // position
+        
+        var tZ = this.tZ;
+        var tX = this.tX;
+        var tY = this.tY;
+        
+        css.insertTagRule( classPos+'.border.fro', classPos+'.border.fro init',
+        	css.transformRule({ tX: tX, tY: tY, tZ: tZ, rY:-90 }));
+        css.insertTagRule( classPos+'.border.rig', classPos+'.border.rig init',
+        	css.transformRule({ tZ: tZ, tX: tX, tY: tY }));
+        css.insertTagRule( classPos+'.border.top', classPos+'.border.top init',
+        	css.transformRule({ tY: tY, tZ: tZ, tX: tX, rX: 90 }));
         
         // size
 	    
@@ -222,6 +236,13 @@ var Hexa = Class.extend({
         css.insertTagRule( classPos+'.front.rig', classPos+'.front.rig',
         	css.transformRule({ tZ: tZ+side/2, tX: tX, tY: tY }));
         css.insertTagRule( classPos+'.front.top', classPos+'.front.top',
+        	css.transformRule({ tY: tY-side/2, tZ: tZ, tX: tX, rX: 90 }));
+        
+        css.insertTagRule( classPos+'.border.fro', classPos+'.border.fro',
+        	css.transformRule({ tX: tX-side/2, tY: tY, tZ: tZ, rY:-90 }));
+        css.insertTagRule( classPos+'.border.rig', classPos+'.border.rig',
+        	css.transformRule({ tZ: tZ+side/2, tX: tX, tY: tY }));
+        css.insertTagRule( classPos+'.border.top', classPos+'.border.top',
         	css.transformRule({ tY: tY-side/2, tZ: tZ, tX: tX, rX: 90 }));
         
         // anim size
