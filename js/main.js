@@ -15,7 +15,9 @@ var requestAnimFrame = (function(){
 
 Zepto(function($){
     
+    var message  = new Message();
     var hexaGrid = new HexaGrid();
+    message.target( hexaGrid.$roll, hexaGrid.$idbody.width() );
     var mapIntro = new Map(hexaGrid, 'install');
     
     // install
@@ -32,11 +34,11 @@ Zepto(function($){
     		case 100 : mapIntro.display(); break;
     		case 140 : hexaGrid.check(mapIntro.data.map[mapIntro.data.map.length-1]); break;
     		case 200 : 
-    			hexaGrid.$idbody.append('<div class="message-box install"><div class="message">'+_('install')+'</div></div>');
-			break;
+    			var texte = message.say( 'install', {left:15,top:6}, mapIntro.data.color[3] );
+    		break;
     		case 220 : 
-    			hexaGrid.$idbody.append('<div class="message-box skip"><div class="message">'+_('skip')+'</div></div>');
-			break;
+    			var texte = message.say( 'skip', {left:57,top:13}, mapIntro.data.color[4] );
+    		break;
     	}
     	
         requestAnimFrame(Frame);
