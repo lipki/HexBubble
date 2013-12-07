@@ -20,7 +20,7 @@ var Map = Class.extend({
         this.data = data;
     	
     	//size
-    	if( !this.hexagrid.reset( data.column, data.line, data.color[data.background] ) )
+    	if( !this.hexagrid.reset( this ) )
     		; // todo message d'echec;
         
 	},
@@ -29,6 +29,7 @@ var Map = Class.extend({
         
         var hexa = this.data.map[this.shoot++];
     	this.hexagrid.on(hexa, this.data.color[hexa.id]);
+        return hexa;
         
 	}
   

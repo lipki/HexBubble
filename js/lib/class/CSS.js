@@ -17,9 +17,8 @@ var CSS = Class.extend({
 	    if( arguments.length > 1 ) {
 	    	trep = [];
 	        for( var i=1; i<arguments.length; i++ ) trep.push(arguments[i]);
-	    	rep = selector+'{'+trep.join(';')+'}';
+	    	rep = selector+' {'+trep.join(';')+'}';
 	    }
-	    
 		this.doc.insertRule( rep , this.length++ );
 	},
 	
@@ -38,15 +37,38 @@ var CSS = Class.extend({
 	transformRule: function( transform ) {
 		
 	    trep = [];
-		if( typeof transform.tZ != 'undefined' ) trep.push('translateZ('+transform.tZ.toFixed(2)+'px)');
-		if( typeof transform.tX != 'undefined' ) trep.push('translateX('+transform.tX.toFixed(2)+'px)');
-		if( typeof transform.tY != 'undefined' ) trep.push('translateY('+transform.tY.toFixed(2)+'px)');
+		if( typeof transform.tZ == 'undefined' ) transform.tZ = 0;
+		if( typeof transform.tX == 'undefined' ) transform.tX = 0;
+		if( typeof transform.tY == 'undefined' ) transform.tY = 0;
+		
+		trep.push('translate3d('+transform.tX.toFixed(2)+'px,'+transform.tY.toFixed(2)+'px,'+transform.tZ.toFixed(2)+'px)');
+		
 		if( typeof transform.rZ != 'undefined' ) trep.push('rotateZ('+transform.rZ.toFixed(2)+'deg)');
 		if( typeof transform.rX != 'undefined' ) trep.push('rotateX('+transform.rX.toFixed(2)+'deg)');
 		if( typeof transform.rY != 'undefined' ) trep.push('rotateY('+transform.rY.toFixed(2)+'deg)');
 		
 		return 'transform:'+trep.join(' ');
 		
+	},
+	
+	linearGradientRule: function( angle ) {
+		
+    	trep = [angle+'deg'];
+        for( var i=1; i<arguments.length; i++ ) {
+        	var color = arguments[i][0];
+        	if( typeof color === 'string' )
+        		trep.push(color+' '+arguments[i][1]+'%');
+        	else {
+				if( typeof color.R == 'undefined' ) color.R = 255;
+				if( typeof color.G == 'undefined' ) color.G = 255;
+				if( typeof color.B == 'undefined' ) color.B = 255;
+				if( typeof color.A == 'undefined' ) color.A = 255;
+        		trep.push('rgba('+color.R+','+color.G+','+color.B+','+color.A+') '+arguments[i][1]+'%');
+        	}
+        }
+        
+    	return  'background:linear-gradient('+trep.join(',')+')';
+	    
 	}
   
 });

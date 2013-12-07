@@ -6,9 +6,9 @@ var HexaGrid = Class.extend({
     	this.grid = [];
         
         this.$idbody = $('<div id="body"/>');
-        this.$roll = $('<div id="roll"/>');
-        this.$pitch = $('<div id="pitch"/>');
-        this.$yaw = $('<div id="yaw"/>');
+        this.$roll   = $('<div id="roll"/>');
+        this.$pitch  = $('<div id="pitch"/>');
+        this.$yaw    = $('<div id="yaw"/>');
         
         this.$pitch.append(this.$yaw);
         this.$roll.append(this.$pitch);
@@ -18,6 +18,11 @@ var HexaGrid = Class.extend({
     	// orientation
     	this.navWidth = this.width = this.$idbody.width();
     	this.navHeight = this.height = this.$idbody.height();
+    	
+    	if( this.navWidth > this.navHeight ) {
+    		this.height = this.navWidth;
+    		this.width = this.navHeight;
+		}
         
 	},
 	
@@ -31,13 +36,6 @@ var HexaGrid = Class.extend({
         
     	this.css.insertRule('#roll','left:'+(this.navWidth/2)+'px','top:'+(this.navHeight/2)+'px');
     	
-    	if( this.navWidth > this.navHeight ) {
-    		
-	    	this.css.insertRule('#roll','transform:translateY('+this.height+'px) rotateZ(-90deg)');
-    		this.height = this.navWidth;
-    		this.width = this.navHeight;
-		}
-		
 		var offsetWidth = this.width/2; //middle
 		offsetWidth -= this.demiWidthCube*(this.column-.5); // décentrage
 		
@@ -45,7 +43,8 @@ var HexaGrid = Class.extend({
 		offsetHeight -= this.heightCube*((this.line-1)*.75); // décentrage
     	
     	if( this.navWidth > this.navHeight ) {
-	    	this.css.insertRule('#roll','top:'+offsetWidth+'px');
+	    	this.css.insertRule('#roll','transform:translateY('+this.width+'px) rotateZ(-90deg)');
+	    	this.css.insertRule('#roll','top:'+(-offsetWidth)+'px');
 	    	this.css.insertRule('#roll','left:'+offsetHeight+'px');
     	} else {
 	    	this.css.insertRule('#roll','left:'+offsetWidth+'px');
@@ -69,27 +68,26 @@ var HexaGrid = Class.extend({
 	    
 	},
 	
-	reset: function( column, line, color )  {
+	reset: function( map )  {
 		
     	this.css.reset();
         
-        this.column = column;
-        this.line = line;
+        this.column = map.data.column;
+        this.line = map.data.line;
         
         this.calculating();
 	    
-	    if( this.maxLine < line ) return false;
+	    if( this.maxLine < map.data.line ) return false;
 	    
     	this.initCSS();
 	    
-	    for( var x = -1 ; x <= column ; x ++) {
+	    for( var x = -1 ; x <= map.data.column ; x ++) {
 	    	
 	    	this.grid[x] = [];
 	    	
-		    for( var y = -this.linesup ; y <= line-1+this.linesup ; y ++) {
+		    for( var y = -this.linesup ; y <= map.data.line-1+this.linesup ; y ++) {
 		    	
-		    	this.grid[x][y] = new Hexa( this.css, x, y, this.side, color );
-		    	this.$yaw.append( $( this.grid[x][y].render() ) );
+		    	this.grid[x][y] = new Hexa( this.$yaw, this.css, x, y, this.side, map.data.color[map.data.background] );
 	            
 		    }
 	    }
@@ -130,9 +128,9 @@ var HexaGrid = Class.extend({
         
         if( big ) {
         	
-        	this.grid[big.b1.x][big.b1.y].big('left');
-	        this.grid[big.b2.x][big.b2.y].big('right');
-	        this.grid[big.b3.x][big.b3.y].big('bottom');
+        	this.grid[big.b1.x][big.b1.y].bigOn('left');
+	        this.grid[big.b2.x][big.b2.y].bigOn('right');
+	        this.grid[big.b3.x][big.b3.y].bigOn('bottom');
 	            
         }
 		

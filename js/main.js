@@ -28,11 +28,10 @@ Zepto(function($){
     function Frame() { time++;
     	
     	switch (time) {
-    		case  40 : mapIntro.display(); break;
-    		case  50 : mapIntro.display(); break;
-    		case  70 : mapIntro.display(); break;
-    		case 100 : mapIntro.display(); break;
-    		case 140 : hexaGrid.check(mapIntro.data.map[mapIntro.data.map.length-1]); break;
+    		case  50 : var hexa = mapIntro.display(); hexaGrid.check( hexa ); break;
+    		case  60 : var hexa = mapIntro.display(); hexaGrid.check( hexa ); break;
+    		case  70 : var hexa = mapIntro.display(); hexaGrid.check( hexa ); break;
+    		case 100 : var hexa = mapIntro.display(); hexaGrid.check( hexa ); break;
     		case 200 : 
     			var texte = message.say( 'install', {left:15,top:6}, mapIntro.data.color[3] );
     		break;
