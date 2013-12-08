@@ -13,9 +13,9 @@ CSS.prototype.reset = function()  {
 CSS.prototype.insertRule = function( selector ) {
 	
     if( arguments.length > 1 ) {
-    	trep = [];
+    	var trep = [];
         for( var i=1; i<arguments.length; i++ ) trep.push(arguments[i]);
-    	rep = selector+' {'+trep.join(';')+'}';
+    	var rep = selector+' {'+trep.join(';')+'}';
     }
 	this.doc.insertRule( rep , this.length++ );
 };
@@ -34,7 +34,7 @@ CSS.prototype.insertTagRule = function( selector, tag ) {
 
 CSS.prototype.transformRule = function( transform ) {
 	
-    trep = [];
+    var trep = [];
 	if( typeof transform.tZ == 'undefined' ) transform.tZ = 0;
 	if( typeof transform.tX == 'undefined' ) transform.tX = 0;
 	if( typeof transform.tY == 'undefined' ) transform.tY = 0;
@@ -51,7 +51,7 @@ CSS.prototype.transformRule = function( transform ) {
 
 CSS.prototype.linearGradientRule = function( angle ) {
 	
-	trep = [angle+'deg'];
+	var trep = [angle+'deg'];
     for( var i=1; i<arguments.length; i++ ) {
     	var color = arguments[i][0];
     	if( typeof color === 'string' )

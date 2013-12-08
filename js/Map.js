@@ -1,7 +1,6 @@
 
-var Map = function(hexagrid, name) {
+var Map = function(name) {
     
-    this.hexagrid = hexagrid;
     mi = this;
     this.shoot = 0;
     
@@ -18,15 +17,18 @@ Map.prototype.loaded = function(data) {
     this.data = data;
 	
 	//size
-	if( !this.hexagrid.reset( this ) )
+	if( !hexagrid.reset( this ) )
 		; // todo message d'echec;
+	
+	// scenario
+	storytelling.add(this, data.scenario);
     
 };
 
 Map.prototype.display = function() {
     
     var hexa = this.data.map[this.shoot++];
-	this.hexagrid.on(hexa, this.data.color[hexa.id]);
+	hexagrid.on(hexa, this.data.color[hexa.id]);
     return hexa;
     
 };

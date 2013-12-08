@@ -105,14 +105,13 @@ Hexa.prototype.border = function() {
     css.insertTagRule('.border', 'all face border',
 		'background:#fff',
 		'height: 0px','width : 0px','margin: 0px',
-		'border-radius: '+border+'px '+(border/3)+'px',
+		'border-radius: 25% 14%',
     	'transition-property: all',
     	'transition-duration: 1s',
-		'transition-delay: .4s',
 		'z-index:20'
     );
     css.insertTagRule('.border.rig', 'all face border right',
-    	'border-radius: '+(border/3)+'px '+border+'px'
+    	'border-radius: 14% 25%'
     );
     
 };

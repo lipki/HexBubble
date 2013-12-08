@@ -1,8 +1,7 @@
 {
-  "version": "0.1",
+  "version": "0.2",
   "name": "Hexable",
   "description": "A Puzzle Bobble like",
-  "launch_path": "/index.html",
   "orientation": [ "portrait", "landscape-secondary" ],
   "icons": {
     "16" : "/img/icons/icon-16.png",
@@ -20,7 +19,6 @@
     "name": "Lepeltier kévin",
     "url": "http://hexable.lepeltier.info"
   },
-  "installs_allowed_from": ["*"],
   "appcache_path": "/cache.manifest",
   "fullscreen": "true",
   "default_locale": "en",
