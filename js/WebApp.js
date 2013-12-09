@@ -7,11 +7,13 @@ var WebApp = function( manifest ) {
 };
 
 WebApp.prototype.checkInstalled = function( callbackTrue, callbackFalse )  {
+    console.log('check');
 	
 	var mi = this;
 	var request = this.apps.checkInstalled(this.manifest);
 	
 	request.onerror = function( e ) {
+    	console.log('check : error');
 		
 		message.say( {say:'checkinstallfailed', error:this.error.name}, {left:35,top:50}, {R:255, G:0, B:0} );
 		mi.error = this.error;
@@ -21,24 +23,26 @@ WebApp.prototype.checkInstalled = function( callbackTrue, callbackFalse )  {
 	request.onsuccess = function( e ) { 
 		if (this.result) {
 			mi.state = 'installed';
+    		console.log(mi.state);
 			callbackTrue ( this.result );
 		} else {
 			mi.state = 'uninstalled';
+    		console.log(mi.state);
 			callbackFalse( this.result );
 		}
 	};
 	
 };
 
-WebApp.prototype.installBtn = function( task ) {
+WebApp.prototype.installBtn = function( args ) {
 	
 	switch(this.state) {
 		case 'installed' : 
 			
-			task.callback = {objet:this, methode:this.uninstallConfirm};
-			result = confirm( _('uninstall'), task );
+			args.callback = {say:'uninstall' , objet:this, methode:this.uninstallConfirm};
+			result = confirm( _('uninstall'), args );
 			
-			this.uninstallConfirm( result, task );
+			this.uninstallConfirm( result, args );
 			
 			/*
 			var bulle = message.say( 'uninstall', task.pos, map.data.color[task.color] );
@@ -47,21 +51,33 @@ WebApp.prototype.installBtn = function( task ) {
 				.click(this.uninstall);*/
 		break;
 		case 'uninstalled' : 
+			
+			args.callback = {say:'install' , objet:this, methode:this.installConfirm};
+			result = confirm( _('install'), args );
+			
+			this.installConfirm( result, args );
+			
 		break;
 		
 	}
 	
 };
 
-WebApp.prototype.uninstallConfirm = function( result, task )  {
+WebApp.prototype.uninstallConfirm = function( result, args )  {
 	
 	if( result ) this.unInstall();
 	
 };
 
+WebApp.prototype.installConfirm = function( result, args )  {
+	
+	if( result ) this.install();
+	
+};
+
 WebApp.prototype.install = function()  {
 	
-	var request = apps.install(this.manifest);
+	var request = this.apps.install(this.manifest);
 
     request.onsuccess = function (data) {
 		this.state = 'installed';
@@ -70,12 +86,20 @@ WebApp.prototype.install = function()  {
     request.onerror = function ( err ) {
         this.error = this.error;
 		this.state = 'error';
+		
+		args = {say:'checkinstallfailed' ,pos:{left:35,top:50}, color:{R:255, G:0, B:0}};
+		
+		if( typeof task.sayArgs !== 'undefined' )
+			 alert( _('checkinstallfailed', {error:this.error.name}), args );
+		else alert( _(task.say), args );
+		
     };
 	
 };
 
 WebApp.prototype.unInstall = function()  {
 	
+	console.log('unInstall');
 	//var result = this.app.uninstall();
 	
 };

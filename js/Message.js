@@ -61,21 +61,21 @@ var Message = function( target, width ) {
     
 	this.css.insertRule('.message-center',
 		'display: block',
-		'margin: 0 -'+((width/1.1)/2).toFixed(2)+'px',
+		'margin: 0 -'+((width/1.1)/2).toFixed(1)+'px',
 		'text-align: center',
-		'width: '+(width/1.1)+'px',
+		'width: '+(width/1.1).toFixed(1)+'px',
 		'height: 0'
 	);
 	
 	this.css.insertRule('.message',
 		'display: inline-block',
-		'border: '+(width/64).toFixed(2)+'px solid #FFFFFF',
-		'border-radius: '+(width/64).toFixed(2)+'px',
+		'border: '+(width/64).toFixed(1)+'px solid #FFFFFF',
+		'border-radius: '+(width/64).toFixed(1)+'px',
 		'color: #FFFFFF',
 		'font-family: monospace',
-		'font-size: '+(width/20).toFixed(2)+'px',
+		'font-size: '+(width/20).toFixed(1)+'px',
 		'font-weight: bold',
-		'padding: '+(width/160).toFixed(2)+'px '+(width/35).toFixed(2)+'px',
+		'padding: '+(width/160).toFixed(1)+'px '+(width/35).toFixed(1)+'px',
 		'text-transform: uppercase'
 	);
 	
@@ -95,12 +95,12 @@ Message.prototype.say = function( say, args )  {
     var colorN = 'rgb('+(128-s3-s2)+','+(128-s3-s2)+','+(128-s3-s2)+')';
 	
 	this.css.insertRule('.message-box.'+clas,
-		'left: '+(width*args.pos.left/100).toFixed(2)+'px',
-		'top: '+(width*args.pos.top/100).toFixed(2)+'px'
+		'left: '+(width*args.pos.left/100).toFixed(1)+'px',
+		'top: '+(width*args.pos.top/100).toFixed(1)+'px'
 	);
 	this.css.insertRule('.message-box.'+clas+' .message',
 		'background: none repeat scroll 0 0 '+colorL,
-		'box-shadow: 0 0 '+(width/12).toFixed(2)+'px '+colorD+' inset, 0 0 '+(width/64).toFixed(2)+'px '+colorN
+		'box-shadow: 0 0 '+(width/12).toFixed(1)+'px '+colorD+' inset, 0 0 '+(width/64).toFixed(1)+'px '+colorN
 	);
 	
 	var rep = '';

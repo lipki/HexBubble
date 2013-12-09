@@ -11,14 +11,14 @@
     "color"  : [
 		{"R": 120, "G":120, "B":120},
 		{"R": 176, "G":204, "B":153},
-		{"R": 103, "G":126, "B":82},
+		{"R": 103, "G":126, "B": 82},
 		{"R": 184, "G":203, "B":122},
 		{"R": 247, "G":233, "B":178},
-		{"R": 137, "G":114, "B":92}
+		{"R": 137, "G":114, "B": 92}
     ],
     "scenario"  : [
-    	{"time":"3s"     , "action":"Map"    , "delay":"1s"},
-    	{"time":"next+5s", "action":"Message", "say":"install", "pos":{"left":15,"top": 6}, "color":3},
-    	{"time":"next+5s", "action":"Message", "say":"skip"   , "pos":{"left":57,"top":13}, "color":4}
+    	{"time":"0s"     , "action":"map"    , "delay":"100ms"},
+    	{"time":"next+1s", "action":"install",                  "pos":{"left":15,"top": 6}, "color":{"R": 184, "G":203, "B":122}},
+    	{"time":"next"   , "action":"confirm", "say":"skip"   , "pos":{"left":57,"top":13}, "color":{"R": 247, "G":233, "B":178}, "callback":{"switch":"intro"}}
     ]
 }

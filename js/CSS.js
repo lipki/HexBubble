@@ -39,11 +39,11 @@ CSS.prototype.transformRule = function( transform ) {
 	if( typeof transform.tX == 'undefined' ) transform.tX = 0;
 	if( typeof transform.tY == 'undefined' ) transform.tY = 0;
 	
-	trep.push('translate3d('+transform.tX.toFixed(2)+'px,'+transform.tY.toFixed(2)+'px,'+transform.tZ.toFixed(2)+'px)');
+	trep.push('translate3d('+transform.tX.toFixed(1)+'px,'+transform.tY.toFixed(1)+'px,'+transform.tZ.toFixed(1)+'px)');
 	
-	if( typeof transform.rZ != 'undefined' ) trep.push('rotateZ('+transform.rZ.toFixed(2)+'deg)');
-	if( typeof transform.rX != 'undefined' ) trep.push('rotateX('+transform.rX.toFixed(2)+'deg)');
-	if( typeof transform.rY != 'undefined' ) trep.push('rotateY('+transform.rY.toFixed(2)+'deg)');
+	if( typeof transform.rZ != 'undefined' ) trep.push('rotateZ('+transform.rZ.toFixed(1)+'deg)');
+	if( typeof transform.rX != 'undefined' ) trep.push('rotateX('+transform.rX.toFixed(1)+'deg)');
+	if( typeof transform.rY != 'undefined' ) trep.push('rotateY('+transform.rY.toFixed(1)+'deg)');
 	
 	return 'transform:'+trep.join(' ');
 	

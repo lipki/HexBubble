@@ -9,6 +9,8 @@ Zepto(function($){
     webApp = new WebApp( location.href + 'manifest.webapp' );
     storytelling = new StoryTelling();
     
+    console.log('start');
+    
     webApp.checkInstalled(function( result ) {
     	map = new Map('intro');
     },function( result ) {

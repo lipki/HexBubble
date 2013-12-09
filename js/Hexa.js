@@ -19,8 +19,9 @@ var Hexa = function( target, css, x, y, side, color )  {
     
     // size
     
+    var aside = this.side+1;
     css.insertTagRule('.back', 'all face back',
-    	'height:'+(side+2)+'px','width:'+(side+2)+'px','margin:-'+(side/2)+'px',
+    	'height:'+aside.toFixed(1)+'px','width:'+aside.toFixed(1)+'px','margin:-'+(aside/2).toFixed(1)+'px',
     	'z-index:10'
     );
     
@@ -106,8 +107,7 @@ Hexa.prototype.border = function() {
 		'background:#fff',
 		'height: 0px','width : 0px','margin: 0px',
 		'border-radius: 25% 14%',
-    	'transition-property: all',
-    	'transition-duration: 1s',
+		'transition: width 1s, height 1s, margin 1s, transform 1s',
 		'z-index:20'
     );
     css.insertTagRule('.border.rig', 'all face border right',
@@ -149,8 +149,7 @@ Hexa.prototype.front = function() {
     
     css.insertTagRule('.front', 'all face front',
     	'height: 0px','width : 0px','margin: 0px',
-    	'transition-property: all',
-    	'transition-duration: 1s',
+		'transition: width 1s, height 1s, margin 1s, transform 1s',
     	'z-index:30'
     );
     
@@ -177,8 +176,7 @@ Hexa.prototype.big = function() {
     
     css.insertTagRule('.big', 'all face big',
     	'height: 0px','width : 0px','margin: 0px',
-    	'transition-property: all',
-    	'transition-duration: 1s',
+		'transition: width 1s, height 1s, margin 1s, transform 1s',
     	'z-index:40'
     );
     
@@ -244,13 +242,14 @@ Hexa.prototype.on = function( id, color ) {
     
     // anim size
     
+    var aside = this.side+1;
     css.insertTagRule( classPos+'.id_'+id+'.front', classPos+'.id_'+id+'.front',
-    	'height:'+(side+2)+'px','width:'+(side+2)+'px','margin:-'+(side/2)+'px'
+    	'height:'+aside.toFixed(1)+'px','width:'+aside.toFixed(1)+'px','margin:-'+(aside/2).toFixed(1)+'px'
     );
     
     var bside = side*1.3;
     css.insertTagRule( classPos+'.id_'+id+'.border', classPos+'.id_'+id+'.border',
-		'height:'+(bside+2)+'px','width:'+(bside+2)+'px','margin:-'+(bside/2)+'px'
+		'height:'+(bside+2).toFixed(1)+'px','width:'+(bside+2).toFixed(1)+'px','margin:-'+(bside/2).toFixed(1)+'px'
     );
     
 };
@@ -273,11 +272,11 @@ Hexa.prototype.bigOn = function( pos ) {
 	
     $(classPos+'.id_'+id).addClass('big_'+pos);
     
-	
+    var aside = this.side+1;
 	switch (pos) {
     	case 'left' :
 		    css.insertRule(classPos+'.id_'+id+'.big_left.big.rig',
-		    	'height:'+(side+2)+'px','width:'+(side+2)+'px','margin:-'+(side/2)+'px'
+		    	'height:'+aside.toFixed(1)+'px','width:'+aside.toFixed(1)+'px','margin:-'+(aside/2).toFixed(1)+'px'
 		    );
     		css.insertRule( classPos+'.big_left.big.rig',
     			css.transformRule({ tZ: tZ+side/2*3, tX: tX, tY: tY })
@@ -288,7 +287,7 @@ Hexa.prototype.bigOn = function( pos ) {
 		break;
         case 'right' :
 		    css.insertRule(classPos+'.id_'+id+'.big_right.big.fro',
-		    	'height:'+(side+2)+'px','width:'+(side+2)+'px','margin:-'+(side/2)+'px'
+		    	'height:'+aside.toFixed(1)+'px','width:'+aside.toFixed(1)+'px','margin:-'+(aside/2).toFixed(1)+'px'
 		    );
 	        css.insertRule( classPos+'.big_right.big.fro',
     			css.transformRule({ tX: tX-side/2*3, tY: tY, tZ: tZ, rY:-90 })
@@ -299,7 +298,7 @@ Hexa.prototype.bigOn = function( pos ) {
         break;
     	case 'bottom' :
 		    css.insertRule(classPos+'.id_'+id+'.big_bottom.big.top',
-		    	'height:'+(side+2)+'px','width:'+(side+2)+'px','margin:-'+(side/2)+'px'
+		    	'height:'+aside.toFixed(1)+'px','width:'+aside.toFixed(1)+'px','margin:-'+(aside/2).toFixed(1)+'px'
 		    );
 	        css.insertRule( classPos+'.big_bottom.big.top',
     			css.transformRule({ tY: tY-side/2*3, tZ: tZ, tX: tX, rX: 90 })

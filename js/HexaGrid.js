@@ -26,14 +26,13 @@ var HexaGrid = function()  {
 
 HexaGrid.prototype.initCSS = function()  {
 	
+	this.css.insertRule('*','translate3d(0,0,0)');
 	this.css.insertRule('#roll,#pitch,#yaw,.block','display:block','position:absolute','transform-style:preserve-3d');
 	this.css.insertRule('#pitch','transform:rotateX(-35deg)');
 	this.css.insertRule('#yaw','transform:rotateY(45deg);margin: 0px');
     this.css.insertRule('.block','display: block;position: absolute');
 	this.css.insertRule('.face','backface-visibility:hidden','display:block','position:absolute','-moz-box-sizing:padding-box');
     
-	this.css.insertRule('#roll','left:'+(this.navWidth/2)+'px','top:'+(this.navHeight/2)+'px');
-	
 	var offsetWidth = this.width/2; //middle
 	offsetWidth -= this.demiWidthCube*(this.column-.5); // décentrage
 	
@@ -41,12 +40,12 @@ HexaGrid.prototype.initCSS = function()  {
 	offsetHeight -= this.heightCube*((this.line-1)*.75); // décentrage
 	
 	if( this.navWidth > this.navHeight ) {
-    	this.css.insertRule('#roll','transform:translateY('+this.width+'px) rotateZ(-90deg)');
-    	this.css.insertRule('#roll','top:'+(-offsetWidth)+'px');
-    	this.css.insertRule('#roll','left:'+offsetHeight+'px');
+    	this.css.insertRule('#roll','transform:translateY('+this.width.toFixed(1)+'px) rotateZ(-90deg)');
+    	this.css.insertRule('#roll','top:'+(-offsetWidth).toFixed(1)+'px');
+    	this.css.insertRule('#roll','left:'+offsetHeight.toFixed(1)+'px');
 	} else {
-    	this.css.insertRule('#roll','left:'+offsetWidth+'px');
-		this.css.insertRule('#roll','top:'+offsetHeight+'px');
+    	this.css.insertRule('#roll','left:'+offsetWidth.toFixed(1)+'px');
+		this.css.insertRule('#roll','top:'+offsetHeight.toFixed(1)+'px');
 	}
 	
 };
