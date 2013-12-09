@@ -24,26 +24,29 @@ var StoryTelling = function() {
     
     this.listing = [];
     this.oldlisting = [];
-    this.nextTime = 0;
+    this.namedListing = {};
+    this.currentTime = 0;
     
 };
 
-StoryTelling.prototype.add = function( map, scenario ) {
-    
+StoryTelling.prototype.addScenario = function( scenario ) {
+	
+    this.listing = [];
+    this.oldlisting = [];
+    this.namedListing = {};
+    this.currentTime = 0;
     
     for( var s in scenario ) {
     	
     	var task = scenario[s];
-    	var realTime = task.time;
     	
-    	if( task.time.indexOf('next') == 0 ) {
-    		tabTime = task.time.split('+');
-    		realTime = this.nextTime + this.delay(tabTime[1]);
-    	} else {
-    		realTime = this.delay(task.time);
-    	}
+	    $(document).trigger(task.trigger, task);
     	
-    	this.nextTime = this[task.action]( task, realTime );
+    	/*if( typeof task.name !== 'undefined' ) {
+    		
+    		this[task.action]( task );
+    		
+    	}*/
     	
     }
     
@@ -55,7 +58,30 @@ StoryTelling.prototype.add = function( map, scenario ) {
     
 };
 
-StoryTelling.prototype.delay = function( time ) {
+StoryTelling.prototype.addline = function( time, callback ) {
+	
+	if( time.indexOf('next') == 0 ) {
+		tabTime = time.split('+');
+		this.listing.push([ this.addDelay(tabTime[1]), callback]);
+	} else {
+		this.listing.push([ this.setCurrentTime(time), callback]);
+	}
+	
+};
+
+StoryTelling.prototype.addDelay = function( time ) {
+	
+	return this.currentTime += this.inMilli(time);
+    
+};
+
+StoryTelling.prototype.setCurrentTime = function( time ) {
+	
+	return this.currentTime = this.inMilli(time);
+    
+};
+
+StoryTelling.prototype.inMilli = function( time ) {
     
     if( typeof time === 'number' )
     	return time;
@@ -83,15 +109,8 @@ StoryTelling.prototype.frame = function( time ) {
 		}
 	}
 	
-	/*
-		var bulle = message.say( 'install', {left:15,top:6}, map.data.color[3] );
-		
-		bulle.add('.id_3')
-			.css('cursor','pointer')
-			.click(install);
-	*/
 	var mi = this;
-    requestAFrame(function(time){mi.frame(time)});
+    requestAFrame(function(time){mi.frame(time);});
     
 };
 
@@ -103,94 +122,17 @@ StoryTelling.prototype.frame = function( time ) {
 
 
 
-StoryTelling.prototype.map = function( task, realTime ) {
-    
-    if( typeof task.start === 'undefined' ) task.start = 0;
-    if( typeof task.end === 'undefined' ) task.end = map.data.map.length-1;
-    
-    var s = 0;
-    	
-    if( task.start < task.end ) {
-    
-	    for( var m = task.start; m <= task.end; m++ ) { s ++;
-	    	
-	    	if( s != 0 ) realTime += this.delay(task.delay);
-	    	this.listing.push([ realTime, function(){
-	    		$(document).trigger('map_display', task);
-	    	}]);
-	    	
-	    }
-	    
-    } else if( task.start > task.end ) {
-    
-	    for( var m = task.start; m >= task.end; m-- ) { s ++;
-	    	
-	    	if( s != 0 ) realTime += this.delay(task.delay);
-	    	this.listing.push([ realTime, function(){
-	    		$(document).trigger('map_display', task);
-	    	}]);
-	    	
-	    }
-	    
-    }
-    
-    return realTime;
-    
-};
 
-StoryTelling.prototype.alert = function( task, realTime ) {
-	
-	this.listing.push([ realTime, function() {
-		if( typeof task.sayArgs !== 'undefined' )
-			 alert( _(task.say, task.sayArgs), task );
-		else alert( _(task.say), task );
-	}]);
-    
-    return realTime;
-    
-};
 
-StoryTelling.prototype.confirm = function( task, realTime ) {
+
+
+
+
+StoryTelling.prototype.callback = function( task ) {
 	
 	var mi = this;
-	this.listing.push([ realTime, function() {
-		task.callback.objet = mi;
-		task.callback.methode = mi.confirmResult;
-		if( typeof task.sayArgs !== 'undefined' )
-			 result = confirm( _(task.say, task.sayArgs), task );
-		else result = confirm( _(task.say), task );
-		
-		mi.confirmResult( result, task );
-	}]);
-    
-    return realTime;
-    
-};
-
-StoryTelling.prototype.confirmResult = function( result, task ) {
-	
-	if( result ) alert("Thanks for Visiting!");
-    
-};
-
-StoryTelling.prototype.prompt = function( task, realTime ) {
-	
-	this.listing.push([ realTime, function() {
-		if( typeof task.sayArgs !== 'undefined' )
-			 alert( _(task.say, task.sayArgs), task );
-		else alert( _(task.say), task );
-	}]);
-    
-    return realTime;
-    
-};
-
-StoryTelling.prototype.install = function( task, realTime ) {
-	
-	this.listing.push([ realTime, function() {
-		webApp.installBtn(task);
-	}]);
-    
-    return realTime;
+	this.namedListing[task.name] = function() {
+		mi.confirmResult.call( mi, true, task.callback );
+	};
     
 };

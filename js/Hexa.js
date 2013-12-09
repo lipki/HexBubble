@@ -1,4 +1,4 @@
-var Hexa = function( target, css, x, y, side, color )  {
+var Hexa = function( target, css, x, y, side, inG )  {
 	
 	this.target = target;
 	this.css = css;
@@ -33,14 +33,6 @@ var Hexa = function( target, css, x, y, side, color )  {
     var s3 = this.s3 = 100;
     var s4 = this.s4 = 50;
     
-    /*css.insertTagRule( '.back.fro', 'bfrocolor', 
-    	css.linearGradientRule(   45, [{R:color.R-s3-s2, G:color.G-s3-s2, B:color.B-s3-s2}, 0], [{R:color.R-s2, G:color.G-s2, B:color.B-s2}, 200]));
-    css.insertTagRule( '.back.rig', 'brigcolor', 
-    	css.linearGradientRule(  -45, [{R:color.R-s3-s1, G:color.G-s3-s1, B:color.B-s3-s1}, 0], [{R:color.R-s1, G:color.G-s1, B:color.B-s1}, 200]));
-    css.insertTagRule( '.back.top', 'btopcolor', 
-    	css.linearGradientRule( -130, [{R:color.R-s3-s0, G:color.G-s3-s0, B:color.B-s3-s0}, 0], [{R:color.R-s0, G:color.G-s0, B:color.B-s0}, 200]));
-    */
-    
     css.insertTagRule( '.back.fro', 'back fro color',
     	css.linearGradientRule(   45, ['#080808', 0], ['#0f0f0f', 50], ['#151515', 100]));
     css.insertTagRule( '.back.rig', 'back rig color', 
@@ -62,11 +54,11 @@ var Hexa = function( target, css, x, y, side, color )  {
     	css.transformRule({ tY: tY+side/2, tZ: tZ, tX: tX, rX: 90 }));
 	
 	// reste
-	
-    this.border();
-    this.front();
-    this.big();
-    
+	if( inG ) {
+	    this.border();
+	    this.front();
+	    this.big();
+    }
 };
 
 Hexa.prototype.border = function() {

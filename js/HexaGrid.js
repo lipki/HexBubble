@@ -24,13 +24,14 @@ var HexaGrid = function()  {
     	
     // listen event
     var mi = this;
-    $(document).on('hexa_on', function(e, data) { mi.check (e, data); });
+    $(document).on('hexa_on'    , function(e, data       ) { mi.check (e, data); });
+    $(document).on('map_hexa_on', function(e, data, data2) { mi.on (e, data); });
 
 };
 
 HexaGrid.prototype.initCSS = function()  {
 	
-	this.css.insertRule('*','translate3d(0,0,0)');
+	this.css.insertRule('*','transform:translate3d(0,0,0)');
 	this.css.insertRule('#roll,#pitch,#yaw,.block','display:block','position:absolute','transform-style:preserve-3d');
 	this.css.insertRule('#pitch','transform:rotateX(-35deg)');
 	this.css.insertRule('#yaw','transform:rotateY(45deg);margin: 0px');
@@ -69,26 +70,27 @@ HexaGrid.prototype.calculating = function() {
     
 };
 
-HexaGrid.prototype.reset = function( map )  {
+HexaGrid.prototype.reset = function( mData )  {
 	
 	this.css.reset();
     
-    this.column = map.data.column;
-    this.line = map.data.line;
+    this.column = mData.column;
+    this.line = mData.line;
     
     this.calculating();
     
-    if( this.maxLine < map.data.line ) return false;
+    if( this.maxLine < mData.line ) return false;
     
 	this.initCSS();
     
-    for( var x = -1 ; x <= map.data.column ; x ++) {
+    for( var x = -1 ; x <= Math.ceil(mData.column) ; x ++) {
     	
     	this.grid[x] = [];
     	
-	    for( var y = -this.linesup ; y <= map.data.line-1+this.linesup ; y ++) {
+	    for( var y = -this.linesup ; y <= mData.line-1+this.linesup ; y ++) {
 	    	
-	    	this.grid[x][y] = new Hexa( this.$yaw, this.css, x, y, this.side, map.data.color[map.data.background] );
+	    	var inG = x >= 0 && x < this.column && y >= 0 && y < this.line;
+	    	this.grid[x][y] = new Hexa( this.$yaw, this.css, x, y, this.side, inG );
             
 	    }
     }
@@ -97,9 +99,9 @@ HexaGrid.prototype.reset = function( map )  {
 	
 };
 
-HexaGrid.prototype.on = function( hexa, color ) {
+HexaGrid.prototype.on = function( e, hexa ) {
 	
-	this.grid[hexa.x][hexa.y].on( hexa.id, color );
+	this.grid[hexa.x][hexa.y].on( hexa.id, hexa.color );
     
 };
 

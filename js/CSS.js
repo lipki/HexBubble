@@ -1,11 +1,12 @@
 var CSS = function( css ) {
 	//$("head").append( $(document.createElement("link")).attr({rel:"stylesheet", type:"text/css", href:uri}) );
-	this.doc = document.styleSheets[1];
-	this.reset();
+	this.doc = document.styleSheets[css];
+	this.length = this.doc.cssRules.length;
+	this.tags = [];
 };
 
 CSS.prototype.reset = function()  {
-	while( this.length-- ) this.doc.deleteRule(this.length);
+	while( this.doc.cssRules.length ) this.doc.deleteRule( 0 );
 	this.length = 0;
 	this.tags = [];
 };
@@ -26,7 +27,7 @@ CSS.prototype.insertTagRule = function( selector, tag ) {
 		this.tags.push(tag);
 		var args = Array.prototype.slice.call(arguments);
 		args.splice(1, 1);
-		args[0] = '/*'+tag+'*/'+args[0];
+		args[1] = 'content: "'+tag+'";'+args[1];
 		this.insertRule.apply( this, args );
 	}
 	

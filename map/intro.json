@@ -1,7 +1,6 @@
 {
     "column" : 4,
     "line"   : 5,
-    "background" : 0,
     "map"    : [
         {"id":1, "x":0, "y":0},
         {"id":1, "x":1, "y":0},
@@ -16,19 +15,20 @@
         {"id":5, "x":3, "y":4}
     ],
     "color"  : [
-		{"R": 100, "G":100, "B":100},
-		{"R": 176, "G":204, "B":153},
-		{"R": 103, "G":126, "B": 82},
-		{"R": 184, "G":203, "B":122},
-		{"R": 247, "G":233, "B":178},
-		{"R": 137, "G":114, "B": 92}
+		{"R":100, "G":100, "B":100},
+		{"R":176, "G":204, "B":153},
+		{"R":103, "G":126, "B": 82},
+		{"R":184, "G":203, "B":122},
+		{"R":247, "G":233, "B":178},
+		{"R":137, "G":114, "B": 92}
+		
     ],
     "scenario"  : [
-    	{"time":"3s"     , "action":"map"    , "delay":"1s"},
-    	{"time":"next+1s", "action":"confirm", "say":"adventure", "pos":{"left":10,"top":13}, "color":{"R": 176, "G":204, "B":153}, "callback":{"switch":"adventure"}},
-    	{"time":"next"   , "action":"confirm", "say":"level"    , "pos":{"left":67,"top":32}, "color":{"R": 103, "G":126, "B": 82}, "callback":{"switch":"level"}},
-    	{"time":"next"   , "action":"confirm", "say":"build"    , "pos":{"left": 7,"top":53}, "color":{"R": 247, "G":233, "B":178}, "callback":{"switch":"build"}},
-    	{"time":"next"   , "action":"install",                    "pos":{"left":60,"top":67}, "color":{"R": 137, "G":114, "B": 92}}
+    	{"time":"0s"     , "trigger":"map_all_display"    , "delay":"500ms"},
+    	{"time":"next+1s", "trigger":"confirm", "say":"adventure", "pos":{"left":10,"top":13}, "color":{"R": 176, "G":204, "B":153}, "reply":{"name":"switch","map":"adventure"}},
+    	{"time":"next"   , "trigger":"confirm", "say":"level"    , "pos":{"left":67,"top":32}, "color":{"R": 103, "G":126, "B": 82}, "reply":{"name":"switch","map":"level"}},
+    	{"time":"next"   , "trigger":"confirm", "say":"build"    , "pos":{"left": 7,"top":53}, "color":{"R": 247, "G":233, "B":178}, "reply":{"name":"switch","map":"build"}},
+    	{"time":"next"   , "trigger":"webapp_installbtn",          "pos":{"left":60,"top":67}, "color":{"R": 137, "G":114, "B": 92}, "reply":{"installed":{"name":"switch","map":"intro"},"uninstalled":{"name":"switch","map":"install"}}}
     ]
     
 }

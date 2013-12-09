@@ -79,6 +79,10 @@ var Message = function( target, width ) {
 		'text-transform: uppercase'
 	);
 	
+    // listen event
+    var mi = this;
+    $(document).on('confirm', function(e, data) { mi.confirm (e, data); });
+	
 };
 
 Message.prototype.say = function( say, args )  {
@@ -112,14 +116,47 @@ Message.prototype.say = function( say, args )  {
 	this.target.append(rep);
 	
 	// action
-	if( typeof args.callback !== 'undefined' ) {
+	if( typeof args.reply !== 'undefined' ) {
 		$('.message-box.'+clas+' .message')
 			.css('cursor','pointer')
 			.click(function() {
-				args.callback.methode.call( args.callback.objet, true, args.callback );
+				$(document).trigger(args.reply.name, args.reply );
 			});
 	}
 	
+};
+
+Message.prototype.alert = function( e, data ) {
+	
+	st.addline( data.time, function() {
+		if( typeof data.sayArgs !== 'undefined' )
+			 alert( _(data.say, data.sayArgs), data );
+		else alert( _(data.say), data );
+	});
+    
+};
+
+Message.prototype.confirm = function( e, data ) {
+    
+	var mi = this;
+	st.addline( data.time, function(){
+		if( typeof data.sayArgs !== 'undefined' )
+			 result = confirm( _(data.say, data.sayArgs), data );
+		else result = confirm( _(data.say), data );
+		
+		if( result ) $(document).trigger(data.reply.name, data.reply );
+	});
+    
+};
+
+StoryTelling.prototype.prompt = function( e, data ) {
+	
+	st.addline( data.time, function() {
+		if( typeof data.sayArgs !== 'undefined' )
+			 alert( _(data.say, data.sayArgs), data );
+		else alert( _(data.say), data );
+	});
+    
 };
 
 

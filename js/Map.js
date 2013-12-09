@@ -10,27 +10,55 @@ var Map = function(name) {
 	
     // listen event
     var mi = this;
-    $(document).on('map_loaded',  function(e, data) { mi.loaded (e, data); });
-    $(document).on('map_display', function(e, data) { mi.display(e, data); });
+    $(document).on('map_loaded',      function(e, data) { mi.loaded    (e, data); });
+    $(document).on('map_all_display', function(e, data) { mi.alldisplay(e, data); });
+    $(document).on('map_display',     function(e, data) { mi.display   (e, data); });
 };
 
 Map.prototype.loaded = function( e, data ) {
     
     //init
-    this.data = data;
+    this.mData = data;
 	
 	//size
-	if( !hexagrid.reset( this ) )
+	$('.message-box, .face').remove();
+	if( !hexagrid.reset( this.mData ) )
 		; // todo message d'echec;
 	
 	// scenario
-	storytelling.add(this, data.scenario);
+	st.addScenario( this.mData.scenario );
+    
+};
+
+Map.prototype.alldisplay = function( e, data ) {
+    
+    if( typeof data.start === 'undefined' ) data.start = 0;
+    if( typeof data.end === 'undefined' ) data.end = this.mData.map.length-1;
+    
+    st.setCurrentTime(data.time);
+    
+    if( data.start < data.end )
+    	for( var m = data.start; m <= data.end; m++ ) 
+	    	this.makeTriggerDisplay( m, data );
+    else
+    	for( var m = data.start; m >= data.end; m-- )
+			this.makeTriggerDisplay( m, data );
+    
+};
+
+Map.prototype.makeTriggerDisplay = function( m, data ) {
+    
+	st.addline( 'next', function(){
+		$(document).trigger('map_display', data);
+	});
+	st.addDelay(data.delay);
     
 };
 
 Map.prototype.display = function( e, data ) {
     
-    var hexa = this.data.map[this.shoot++];
-	hexagrid.on(hexa, this.data.color[hexa.id]);
+    var hexa = this.mData.map[this.shoot++];
+    hexa.color = this.mData.color[hexa.id];
+    $(document).trigger('map_hexa_on', hexa);
     
 };

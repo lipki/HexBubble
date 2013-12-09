@@ -4,18 +4,21 @@ var WebApp = function( manifest ) {
 	this.apps = navigator.mozApps;
 	this.state = 'unknown';
 	
+    // listen event
+    var mi = this;
+    $(document).on('webapp_installbtn'   , function(e, data) { mi.installbtn (e, data); });
+    $(document).on('WebApp_ask_uninstall', function(e, data) { mi.unInstall (e, data); });
+    $(document).on('WebApp_ask_install'  , function(e, data) { mi.install (e, data); });
 };
 
-WebApp.prototype.checkInstalled = function( callbackTrue, callbackFalse )  {
-    console.log('check');
+WebApp.prototype.checkInstalled = function()  {
 	
 	var mi = this;
 	var request = this.apps.checkInstalled(this.manifest);
 	
 	request.onerror = function( e ) {
-    	console.log('check : error');
-		
-		message.say( {say:'checkinstallfailed', error:this.error.name}, {left:35,top:50}, {R:255, G:0, B:0} );
+    	console.log( 'WebApp checkInstalled error : '+this.error.name );
+		$(document).trigger('WebApp_check_error', this);
 		mi.error = this.error;
 		mi.state = 'error';
 	};
@@ -23,83 +26,71 @@ WebApp.prototype.checkInstalled = function( callbackTrue, callbackFalse )  {
 	request.onsuccess = function( e ) { 
 		if (this.result) {
 			mi.state = 'installed';
-    		console.log(mi.state);
-			callbackTrue ( this.result );
+			$(document).trigger('WebApp_installed', this);
 		} else {
 			mi.state = 'uninstalled';
-    		console.log(mi.state);
-			callbackFalse( this.result );
+			$(document).trigger('WebApp_uninstalled', this);
 		}
 	};
 	
 };
 
-WebApp.prototype.installBtn = function( args ) {
+WebApp.prototype.installbtn = function( e, data ) {
 	
-	switch(this.state) {
-		case 'installed' : 
-			
-			args.callback = {say:'uninstall' , objet:this, methode:this.uninstallConfirm};
-			result = confirm( _('uninstall'), args );
-			
-			this.uninstallConfirm( result, args );
-			
-			/*
-			var bulle = message.say( 'uninstall', task.pos, map.data.color[task.color] );
-    		bulle/*.add('.id_3')
-				.css('cursor','pointer')
-				.click(this.uninstall);*/
-		break;
-		case 'uninstalled' : 
-			
-			args.callback = {say:'install' , objet:this, methode:this.installConfirm};
-			result = confirm( _('install'), args );
-			
-			this.installConfirm( result, args );
-			
-		break;
+	var mi = this;
+	st.addline( data.time, function() {
 		
-	}
-	
+		switch(mi.state) {
+			case 'installed' : 
+				
+				data.reply.name = 'WebApp_ask_uninstall';
+				result = confirm( _('uninstall'), data );
+		
+				if( result ) $(document).trigger('WebApp_ask_uninstall', data);
+				
+				/*
+				var bulle = message.say( 'uninstall', task.pos, map.data.color[task.color] );
+	    		bulle/*.add('.id_3')
+					.css('cursor','pointer')
+					.click(this.uninstall);*/
+			break;
+			case 'uninstalled' : 
+				
+				data.reply.name = 'WebApp_ask_install';
+				result = confirm( _('install'), data );
+				
+				if( result ) $(document).trigger('WebApp_ask_install', data);
+				
+			break;
+			
+		}
+	});
+    
 };
 
-WebApp.prototype.uninstallConfirm = function( result, args )  {
+WebApp.prototype.install = function( e, task )  {
 	
-	if( result ) this.unInstall();
-	
-};
-
-WebApp.prototype.installConfirm = function( result, args )  {
-	
-	if( result ) this.install();
-	
-};
-
-WebApp.prototype.install = function()  {
-	
+	var mi = this;
 	var request = this.apps.install(this.manifest);
 
     request.onsuccess = function (data) {
-		this.state = 'installed';
+		mi.state = 'installed';
+		$(document).trigger(task.installed.name, task.installed );
     };
 
     request.onerror = function ( err ) {
-        this.error = this.error;
-		this.state = 'error';
+        mi.error = mi.error;
+		mi.state = 'error';
 		
-		args = {say:'checkinstallfailed' ,pos:{left:35,top:50}, color:{R:255, G:0, B:0}};
-		
-		if( typeof task.sayArgs !== 'undefined' )
-			 alert( _('checkinstallfailed', {error:this.error.name}), args );
-		else alert( _(task.say), args );
-		
+		args = {say:'installfailed' ,pos:{left:35,top:50}, color:{R:255, G:0, B:0}};
+		alert( _('installfailed', {error:this.error.name}), args );
     };
 	
 };
 
-WebApp.prototype.unInstall = function()  {
+WebApp.prototype.unInstall = function( e, task )  {
 	
 	console.log('unInstall');
-	//var result = this.app.uninstall();
+	$(document).trigger(task.uninstalled.name, task.uninstalled );
 	
 };
