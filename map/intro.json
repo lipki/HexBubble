@@ -25,10 +25,10 @@
     ],
     "scenario"  : [
     	{"time":"0s"     , "trigger":"map_all_display"    , "delay":"500ms"},
-    	{"time":"next+1s", "trigger":"confirm", "say":"adventure", "pos":{"left":10,"top":13}, "color":{"R": 176, "G":204, "B":153}, "reply":{"name":"switch","map":"adventure"}},
-    	{"time":"next"   , "trigger":"confirm", "say":"level"    , "pos":{"left":67,"top":32}, "color":{"R": 103, "G":126, "B": 82}, "reply":{"name":"switch","map":"level"}},
-    	{"time":"next"   , "trigger":"confirm", "say":"build"    , "pos":{"left": 7,"top":53}, "color":{"R": 247, "G":233, "B":178}, "reply":{"name":"switch","map":"build"}},
-    	{"time":"next"   , "trigger":"webapp_installbtn",          "pos":{"left":60,"top":67}, "color":{"R": 137, "G":114, "B": 92}, "reply":{"installed":{"name":"switch","map":"intro"},"uninstalled":{"name":"switch","map":"install"}}}
+    	{"time":"next+1s", "trigger":"confirm", "say":"adventure", "pos":{"left":25,"top":13}, "color":{"R": 176, "G":204, "B":153}, "reply":{"name":"switch","map":"adventure"}},
+    	{"time":"next"   , "trigger":"confirm", "say":"level"    , "pos":{"left":82,"top":32}, "color":{"R": 103, "G":126, "B": 82}, "reply":{"name":"switch","map":"level"}},
+    	{"time":"next"   , "trigger":"confirm", "say":"build"    , "pos":{"left":22,"top":53}, "color":{"R": 247, "G":233, "B":178}, "reply":{"name":"switch","map":"build"}},
+    	{"time":"next"   , "trigger":"webapp_installbtn",          "pos":{"left":75,"top":67}, "color":{"R": 137, "G":114, "B": 92}, "reply":{"installed":{"name":"switch","map":"intro"},"uninstalled":{"name":"switch","map":"install"}}}
     ]
     
 }

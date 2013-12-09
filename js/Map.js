@@ -22,8 +22,8 @@ Map.prototype.loaded = function( e, data ) {
 	
 	//size
 	$('.message-box, .face').remove();
-	if( !hexagrid.reset( this.mData ) )
-		; // todo message d'echec;
+	hexagrid.reset( this.mData );
+	message.setTop( this.mData );
 	
 	// scenario
 	st.addScenario( this.mData.scenario );

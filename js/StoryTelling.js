@@ -20,35 +20,16 @@ var cancelAFrame = (function () {
         };
 })();
 
-var StoryTelling = function() {
-    
-    this.listing = [];
-    this.oldlisting = [];
-    this.namedListing = {};
-    this.currentTime = 0;
-    
-};
+var StoryTelling = function() {};
 
 StoryTelling.prototype.addScenario = function( scenario ) {
 	
     this.listing = [];
     this.oldlisting = [];
-    this.namedListing = {};
     this.currentTime = 0;
     
-    for( var s in scenario ) {
-    	
-    	var task = scenario[s];
-    	
-	    $(document).trigger(task.trigger, task);
-    	
-    	/*if( typeof task.name !== 'undefined' ) {
-    		
-    		this[task.action]( task );
-    		
-    	}*/
-    	
-    }
+    for( var s in scenario )
+	    $(document).trigger( scenario[s].trigger, scenario[s] );
     
     if (window.performance.now)
          this.startime = window.performance.now();
@@ -70,15 +51,11 @@ StoryTelling.prototype.addline = function( time, callback ) {
 };
 
 StoryTelling.prototype.addDelay = function( time ) {
-	
 	return this.currentTime += this.inMilli(time);
-    
 };
 
 StoryTelling.prototype.setCurrentTime = function( time ) {
-	
 	return this.currentTime = this.inMilli(time);
-    
 };
 
 StoryTelling.prototype.inMilli = function( time ) {
@@ -111,28 +88,5 @@ StoryTelling.prototype.frame = function( time ) {
 	
 	var mi = this;
     requestAFrame(function(time){mi.frame(time);});
-    
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-StoryTelling.prototype.callback = function( task ) {
-	
-	var mi = this;
-	this.namedListing[task.name] = function() {
-		mi.confirmResult.call( mi, true, task.callback );
-	};
     
 };

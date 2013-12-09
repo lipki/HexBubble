@@ -5,7 +5,7 @@ Math.odd = function( num ){
 Zepto(function($){
     
     hexagrid = new HexaGrid();
-	Message.make( hexagrid.$roll, hexagrid.$idbody.width() );
+    Message.make();
     webApp = new WebApp( location.href + 'manifest.webapp' );
     st = new StoryTelling();
     

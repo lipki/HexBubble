@@ -47,19 +47,29 @@ window.prompt = function( mess ) {
 
 
 
-var Message = function( target, width ) {
+var Message = function() {
 
-	this.css = new CSS(0);
-	this.target = target;
-	this.width = width;
+	var css = this.css = new CSS(0);
+	var width = this.width = $('#body').width();
     
-    var s2 = this.s2 = 10;
-    var s3 = this.s3 = 100;
-    var s4 = this.s4 = 50;
+    this.s2 =  10;
+    this.s3 = 100;
+    this.s4 =  50;
+    
+    $('#body').append('<div id="message"/>');
+    
+	css.insertRule('#message',
+		'display: block',
+		'height: 100%',
+		'width: 100%',
+		'position: absolute',
+		'transform-style: preserve-3d',
+		'transform: translateZ(400px)'
+	);
 	
-	this.css.insertRule('.message-box', 'position: absolute' );
+	css.insertRule('.message-box', 'position: absolute' );
     
-	this.css.insertRule('.message-center',
+	css.insertRule('.message-center',
 		'display: block',
 		'margin: 0 -'+((width/1.1)/2).toFixed(1)+'px',
 		'text-align: center',
@@ -67,7 +77,7 @@ var Message = function( target, width ) {
 		'height: 0'
 	);
 	
-	this.css.insertRule('.message',
+	css.insertRule('.message',
 		'display: inline-block',
 		'border: '+(width/64).toFixed(1)+'px solid #FFFFFF',
 		'border-radius: '+(width/64).toFixed(1)+'px',
@@ -81,7 +91,20 @@ var Message = function( target, width ) {
 	
     // listen event
     var mi = this;
+    $(document).on('alert',   function(e, data) { mi.alert (e, data); });
     $(document).on('confirm', function(e, data) { mi.confirm (e, data); });
+    $(document).on('prompt',  function(e, data) { mi.prompt (e, data); });
+	
+};
+
+Message.prototype.setTop = function( mData ) {
+	
+	
+	var offsetHeight = hexagrid.height/2; //middle
+	offsetHeight -= hexagrid.heightCube*((mData.line-1)*.75); // décentrage
+	offsetHeight -= hexagrid.heightCube;
+	
+	$('#message').css( 'top', offsetHeight );
 	
 };
 
@@ -113,7 +136,7 @@ Message.prototype.say = function( say, args )  {
 	rep += '<div class="message">'+say+'</div>';
 	rep += '</div>';
 	rep += '</div>';
-	this.target.append(rep);
+	$('#message').append(rep);
 	
 	// action
 	if( typeof args.reply !== 'undefined' ) {
@@ -161,20 +184,10 @@ StoryTelling.prototype.prompt = function( e, data ) {
 
 
 // pseudo singleton
-Message.make = function( target, width ) {
-	
-	if( typeof target === 'undefined' && typeof message.target === 'undefined' ) {
-		console.log('Message error : target is not defined, call Message.make( target, width );');
-		return false;
-	}
-	
-	if( typeof width === 'undefined' && typeof message.width === 'undefined' ) {
-		console.log('Message error : width is not defined, call Message.make( target, width );');
-		return false;
-	}
+Message.make = function() {
 	
 	if( typeof message === 'undefined' )
-		message = new Message( target, width );
+		message = new Message();
 	
 	return message;
 	
