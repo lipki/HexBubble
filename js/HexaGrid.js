@@ -21,7 +21,11 @@ var HexaGrid = function()  {
 		this.height = this.navWidth;
 		this.width = this.navHeight;
 	}
-    
+    	
+    // listen event
+    var mi = this;
+    $(document).on('hexa_on', function(e, data) { mi.check (e, data); });
+
 };
 
 HexaGrid.prototype.initCSS = function()  {
@@ -99,7 +103,7 @@ HexaGrid.prototype.on = function( hexa, color ) {
     
 };
 
-HexaGrid.prototype.check = function( hexa ) {
+HexaGrid.prototype.check = function( e, hexa ) {
 	
     //if triple
     

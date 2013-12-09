@@ -66,6 +66,7 @@ var Hexa = function( target, css, x, y, side, color )  {
     this.border();
     this.front();
     this.big();
+    
 };
 
 Hexa.prototype.border = function() {
@@ -270,6 +271,9 @@ Hexa.prototype.on = function( id, color ) {
     css.insertTagRule( classPos+'.id_'+id+'.border.top', classPos+'.id_'+id+'.border top',
 		'border-color: #fff #fff transparent transparent'
     );
+	
+	// event
+	$(document).trigger('hexa_on', {id:this.id, x:this.x, y:this.y} );
     
 };
 

@@ -116,8 +116,7 @@ StoryTelling.prototype.map = function( task, realTime ) {
 	    	
 	    	if( s != 0 ) realTime += this.delay(task.delay);
 	    	this.listing.push([ realTime, function(){
-	    		var hexa = map.display();
-	    		hexagrid.check( hexa );
+	    		$(document).trigger('map_display', task);
 	    	}]);
 	    	
 	    }
@@ -128,8 +127,7 @@ StoryTelling.prototype.map = function( task, realTime ) {
 	    	
 	    	if( s != 0 ) realTime += this.delay(task.delay);
 	    	this.listing.push([ realTime, function(){
-	    		var hexa = map.display();
-	    		hexagrid.check( hexa );
+	    		$(document).trigger('map_display', task);
 	    	}]);
 	    	
 	    }
@@ -154,7 +152,7 @@ StoryTelling.prototype.alert = function( task, realTime ) {
 
 StoryTelling.prototype.confirm = function( task, realTime ) {
 	
-	mi = this;
+	var mi = this;
 	this.listing.push([ realTime, function() {
 		task.callback.objet = mi;
 		task.callback.methode = mi.confirmResult;

@@ -1,17 +1,20 @@
 
 var Map = function(name) {
     
-    mi = this;
     this.shoot = 0;
     
     //load
     $.getJSON('map/'+name+'.json', function(data) {
-    	mi.loaded(data);
+	    $(document).trigger('map_loaded', data );
     });
 	
+    // listen event
+    var mi = this;
+    $(document).on('map_loaded',  function(e, data) { mi.loaded (e, data); });
+    $(document).on('map_display', function(e, data) { mi.display(e, data); });
 };
 
-Map.prototype.loaded = function(data) {
+Map.prototype.loaded = function( e, data ) {
     
     //init
     this.data = data;
@@ -25,10 +28,9 @@ Map.prototype.loaded = function(data) {
     
 };
 
-Map.prototype.display = function() {
+Map.prototype.display = function( e, data ) {
     
     var hexa = this.data.map[this.shoot++];
 	hexagrid.on(hexa, this.data.color[hexa.id]);
-    return hexa;
     
 };
