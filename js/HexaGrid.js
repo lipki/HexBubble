@@ -31,7 +31,7 @@ HexaGrid.prototype.initCSS = function()  {
 	this.css.insertRule('#pitch','transform:rotateX(-35deg)');
 	this.css.insertRule('#yaw','transform:rotateY(45deg);margin: 0px');
     this.css.insertRule('.block','display: block;position: absolute');
-	this.css.insertRule('.face','backface-visibility:hidden','display:block','position:absolute','-moz-box-sizing:padding-box');
+	this.css.insertRule('.face','backface-visibility:hidden','display:block','position:absolute');
     
 	var offsetWidth = this.width/2; //middle
 	offsetWidth -= this.demiWidthCube*(this.column-.5); // décentrage

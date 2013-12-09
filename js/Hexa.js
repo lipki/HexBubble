@@ -104,14 +104,20 @@ Hexa.prototype.border = function() {
     var border = (bside-side)/.9;
     
     css.insertTagRule('.border', 'all face border',
-		'background:#fff',
 		'height: 0px','width : 0px','margin: 0px',
-		'border-radius: 25% 14%',
-		'transition: width 1s, height 1s, margin 1s, transform 1s',
+		'border-color: transparent transparent #fff #fff',
+    	'border-style: solid',
+		'border-width: 0',
+		'border-radius: 23% 10%',
+		'transition: width 1s, height 1s, margin 1s, transform 1s, border 1s',
 		'z-index:20'
     );
-    css.insertTagRule('.border.rig', 'all face border right',
-    	'border-radius: 14% 25%'
+    css.insertTagRule( '.border.rig', 'all face border rig',
+		'border-color: transparent #fff #fff transparent',
+    	'border-radius: 10% 23%'
+    );
+    css.insertTagRule( '.border.top', 'all face border top',
+		'border-color: #fff #fff transparent transparent'
     );
     
 };
@@ -242,14 +248,27 @@ Hexa.prototype.on = function( id, color ) {
     
     // anim size
     
-    var aside = this.side+1;
+    var aside = side+1;
     css.insertTagRule( classPos+'.id_'+id+'.front', classPos+'.id_'+id+'.front',
     	'height:'+aside.toFixed(1)+'px','width:'+aside.toFixed(1)+'px','margin:-'+(aside/2).toFixed(1)+'px'
     );
     
-    var bside = side*1.3;
+    var bside = side+1;
+    var border = side*1.3-side;
     css.insertTagRule( classPos+'.id_'+id+'.border', classPos+'.id_'+id+'.border',
-		'height:'+(bside+2).toFixed(1)+'px','width:'+(bside+2).toFixed(1)+'px','margin:-'+(bside/2).toFixed(1)+'px'
+		'height:'+(bside-border).toFixed(1)+'px',
+		'width:'+(bside-border).toFixed(1)+'px',
+		'margin:-'+(bside/2+border/2).toFixed(1)+'px',
+		'border-color: transparent transparent #fff #fff',
+		'border-width: '+border+'px',
+		'border-radius: 23% 10%'
+    );
+    css.insertTagRule( classPos+'.id_'+id+'.border.rig', classPos+'.id_'+id+'.border rig',
+		'border-color: transparent #fff #fff transparent',
+    	'border-radius: 10% 23%'
+    );
+    css.insertTagRule( classPos+'.id_'+id+'.border.top', classPos+'.id_'+id+'.border top',
+		'border-color: #fff #fff transparent transparent'
     );
     
 };
