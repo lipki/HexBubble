@@ -101,8 +101,8 @@ Message.prototype.setTop = function( mData ) {
 	
 	
 	var offsetHeight = hexagrid.height/2; //middle
-	offsetHeight -= hexagrid.heightCube*((mData.line-1)*.75); // décentrage
-	offsetHeight -= hexagrid.heightCube;
+	offsetHeight -= hexagrid.side*((mData.line-1)*.75); // décentrage
+	offsetHeight -= hexagrid.side;
 	
 	$('#message').css( 'top', offsetHeight );
 	
