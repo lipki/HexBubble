@@ -1,13 +1,14 @@
-var Hexa = function( css, x, y, side )  {
+var Hexa = function( css, x, y, side, widthCube, heightCube )  {
 	
 	this.css = css;
 	this.x = x;
     this.y = y;
     this.side = side;
+    this.widthCube = widthCube;
+    this.heightCube = heightCube;
     var classPosX = this.classPosX = 'x_'+x;
     var classPosY = this.classPosY = 'y_'+y;
     var classPos = this.classPos = '.'+this.classPosX+'.'+this.classPosY;
-    
     
     // color
     
@@ -31,7 +32,7 @@ var Hexa = function( css, x, y, side )  {
 
 Hexa.prototype.border = function() {
 	
-	var target = $('#border .yaw');
+	var target = $('#border');
 	var css = this.css;
     var side = this.side;
     var classPosX = this.classPosX;
@@ -48,31 +49,20 @@ Hexa.prototype.border = function() {
     
     // position
     
-    var tZ = this.tZ;
-    var tX = this.tX;
-    var tY = this.tY;
-    
-    css.insertTagRule( classPos+'.border.fro', classPos+'.border.fro init',
-    	css.transformRule({ tX: tX, tY: tY, tZ: tZ, rY:-90 }));
-    css.insertTagRule( classPos+'.border.rig', classPos+'.border.rig init',
-    	css.transformRule({ tZ: tZ, tX: tX, tY: tY }));
-    css.insertTagRule( classPos+'.border.top', classPos+'.border.top init',
-    	css.transformRule({ tY: tY, tZ: tZ, tX: tX, rX: 90 }));
-    
-    // size
-    
-    css.insertTagRule('.border', 'all face border',
-		'height: 0px','width : 0px','margin: 0px',
-		'border-color: transparent transparent #fff #fff',
-    	'border-style: solid',
-		'border-width: 0',
+    css.insertTagRule( '.border', '.border init',
+    	'background:#fff',
+		'height: 0px', 'width : 0px', 'margin: 0',
+		'border: 0 solid #fff',
 		'transition: width 1s, height 1s, margin 1s, transform 1s, border 1s'
     );
-    css.insertTagRule( '.border.rig', 'all face border rig',
-		'border-color: transparent #fff #fff transparent'
-    );
-    css.insertTagRule( '.border.top', 'all face border top',
-		'border-color: #fff #fff transparent transparent'
+    css.insertTagRule( '.border.fro', '.border.fro init',
+    	'transform: rotate(60deg)');
+    css.insertTagRule( '.border.rig', '.border.rig init',
+    	'transform: rotate(-60deg)');
+    
+    css.insertTagRule( classPos+'.border', classPos+'.border init',
+    	'left:'+(this.x*this.widthCube + (this.y)%2*this.widthCube/2)+'px',
+    	'top:'+(this.y*this.heightCube*1.5)+'px'
     );
     
 };
@@ -192,13 +182,6 @@ Hexa.prototype.on = function( id, color ) {
     css.insertTagRule( classPos+'.front.top', classPos+'.front.top',
     	css.transformRule({ tY: tY-side/2, tZ: tZ, tX: tX, rX: 90 }));
     
-    css.insertTagRule( classPos+'.border.fro', classPos+'.border.fro',
-    	css.transformRule({ tX: tX-side/2, tY: tY, tZ: tZ, rY:-90 }));
-    css.insertTagRule( classPos+'.border.rig', classPos+'.border.rig',
-    	css.transformRule({ tZ: tZ+side/2, tX: tX, tY: tY }));
-    css.insertTagRule( classPos+'.border.top', classPos+'.border.top',
-    	css.transformRule({ tY: tY-side/2, tZ: tZ, tX: tX, rX: 90 }));
-    
     // anim size
     
     var aside = side+1;
@@ -206,23 +189,17 @@ Hexa.prototype.on = function( id, color ) {
     	'height:'+aside.toFixed(1)+'px','width:'+aside.toFixed(1)+'px','margin:-'+(aside/2).toFixed(1)+'px'
     );
     
-    var border = side*1.2-side;
-    css.insertTagRule( classPos+'.id_'+id+'.border', classPos+'.id_'+id+'.border',
-		'height:'+(aside-border).toFixed(1)+'px',
-		'width:'+(aside-border).toFixed(1)+'px',
-		'margin:-'+(aside/2+border/2).toFixed(1)+'px',
-		'border-color: transparent transparent #fff #fff',
-		'border-width: '+border+'px',
-		'border-radius: '+border+'px 0'
+    var border = side/8;
+    var border2 = border/Math.tan(Math.PI*60/180 );
+    
+    css.insertTagRule( classPos+'.border', classPos+'.border',
+    	'height: '+this.heightCube+'px',
+		'width : '+this.widthCube+'px',
+		'border-width: '+border2+'px '+border+'px',
+		'margin: -'+(this.heightCube/2+border2)+'px -'+(this.widthCube/2+border)+'px',
+		'transition: width 1s, height 1s, margin 1s, transform 1s, border 1s'
     );
-    css.insertTagRule( classPos+'.id_'+id+'.border.rig', classPos+'.id_'+id+'.border rig',
-		'border-color: transparent #fff #fff transparent',
-		'border-radius: 0 '+border+'px'
-    );
-    css.insertTagRule( classPos+'.id_'+id+'.border.top', classPos+'.id_'+id+'.border top',
-		'border-color: #fff #fff transparent transparent'
-    );
-	
+    
 	// event
 	$(document).trigger('hexa_on', {id:this.id, x:this.x, y:this.y} );
     

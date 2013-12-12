@@ -24,7 +24,7 @@
 		
     ],
     "scenario"  : [
-    	{"time":"0s"     , "trigger":"map_all_display"    , "delay":"500ms"},
+    	{"time":"5s"     , "trigger":"map_all_display"    , "delay":"500ms"},
     	{"time":"next+1s", "trigger":"confirm", "say":"adventure", "pos":{"left":25,"top":13}, "color":{"R": 176, "G":204, "B":153}, "reply":{"name":"switch","map":"adventure"}},
     	{"time":"next"   , "trigger":"confirm", "say":"level"    , "pos":{"left":82,"top":32}, "color":{"R": 103, "G":126, "B": 82}, "reply":{"name":"switch","map":"level"}},
     	{"time":"next"   , "trigger":"confirm", "say":"build"    , "pos":{"left":22,"top":53}, "color":{"R": 247, "G":233, "B":178}, "reply":{"name":"switch","map":"build"}},

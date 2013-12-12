@@ -16,7 +16,7 @@
 		{"R": 137, "G":114, "B": 92}
     ],
     "scenario"  : [
-    	{"time":"0s"     , "trigger":"map_all_display"      , "delay":"500ms"},
+    	{"time":"5s"     , "trigger":"map_all_display"      , "delay":"500ms"},
     	{"time":"next+1s", "trigger":"webapp_installbtn"    , "pos":{"left":15,"top": 6}, "color":{"R": 184, "G":203, "B":122}, "reply":{"installed":{"name":"switch","map":"intro"},"uninstalled":{"name":"switch","map":"install"}}},
     	{"time":"next"   , "trigger":"confirm", "say":"skip", "pos":{"left":57,"top":13}, "color":{"R": 247, "G":233, "B":178}, "reply":{"name":"switch","map":"intro"}}
     ]

@@ -56,7 +56,7 @@ var Message = function() {
     this.s3 = 100;
     this.s4 =  50;
     
-    $('#body').append('<div id="message"/>');
+    //$('#body').append('<div id="message"/>');
     
 	css.insertRule('#message',
 		'display: block',

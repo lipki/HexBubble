@@ -12,7 +12,6 @@ var HexaGrid = function()  {
     
     this.$pitch.append(this.$yaw);
     
-    this.$pitch.clone().appendTo(this.$roll_border);
     this.$idbody.append(this.$roll_border);
     
     this.$pitch.clone().appendTo(this.$roll_front);
@@ -22,6 +21,24 @@ var HexaGrid = function()  {
     this.$idbody.append(this.$roll_big);
     
     $('body').prepend(this.$idbody);
+    
+	$('#body').css({
+		transform: 'translate3d(0,0,0)',
+		backgroundColor:'#080808',
+		//backgroundRepeat:'no-repeat',
+		backgroundImage: 
+		'linear-gradient( 30deg, #171717 0%, #131313 12%, transparent 12%, transparent 87%, #1b1b1b 87%, #171717),'+
+		'linear-gradient(150deg, #171717 0%, #1b1b1b 12%, transparent 12%, transparent 87%, #131313 87%, #171717),'+
+		'linear-gradient( 30deg, #171717 0%, #131313 12%, transparent 12%, transparent 87%, #1b1b1b 87%, #171717),'+
+		'linear-gradient(150deg, #171717 0%, #1b1b1b 12%, transparent 12%, transparent 87%, #131313 87%, #171717),'+
+		'linear-gradient( 60deg, #080808 0%, #0f0f0f 25%, transparent 25%, transparent 75%, #0f0f0f 75%, #151515),'+
+		'linear-gradient( 60deg, #080808 0%, #0f0f0f 25%, transparent 25%, transparent 75%, #0f0f0f 75%, #151515),'+
+		'linear-gradient(-60deg, #131313 0%, #171717 25%, transparent 25%, transparent 75%, #171717 75%, #1b1b1b),'+
+		'linear-gradient(-60deg, #131313 0%, #171717 25%, #171717 75%  , #1b1b1b)',
+		backgroundSize: '80px 140px',
+		//transition: 'background-position 5s',
+		backgroundPosition: '0 0, 0 0, 40px 70px, 40px 70px, 0 0, 0 0, 40px 70px, 40px 70px'
+    });
     
 	// orientation
 	this.navWidth = this.width = this.$idbody.width();
@@ -41,46 +58,56 @@ var HexaGrid = function()  {
 
 HexaGrid.prototype.initCSS = function()  {
 	
-	this.css.insertRule('*','transform:translate3d(0,0,0)');
-	this.css.insertRule('.roll, .pitch, .yaw, .block','display: block','position: absolute','transform-style:preserve-3d');
-	this.css.insertRule('.pitch','transform:rotateX(-35deg)');
-	this.css.insertRule('.yaw','transform:rotateY(45deg);margin: 0px');
-	this.css.insertRule('#border','transform: translateZ(100px) scale(1.227);');// valeur mystérieuse
-	this.css.insertRule('#front','transform: translateZ(200px) scale(1.227);');
-	this.css.insertRule('#big','transform: translateZ(300px) scale(1.227);');
-    this.css.insertRule('.block','display: block;position: absolute');
-	this.css.insertRule('.face','backface-visibility:hidden','display:block','position:absolute');
+	var css = this.css;
+    var widthCube = this.widthCube = 80;
+    var side = this.side = widthCube/2/Math.cos(Math.PI*30/180);
+    var scale = this.scale = widthCube/(this.width/(this.column+1));
+	var newWidthCube = widthCube/scale;
+	var newSide = side/scale;
 	
-    
 	var offsetWidth = this.width/2; //middle
-	offsetWidth -= this.demiWidthCube*(this.column-.5); // décentrage
+	offsetWidth -= (newWidthCube/2)*(this.column-.5); // décentrage
 	
 	var offsetHeight = this.height/2; //middle
-	offsetHeight -= this.side*((this.line-1)*.75); // décentrage
+	offsetHeight -= newSide*((this.line-1)*.75); // décentrage
+	
+	var backWidth1 = backWidth2  = - ( Math.odd(this.column) ? newWidthCube/2 : 0 ) - ( Math.floor(this.column) != this.column ? newWidthCube/this.column : 0 );
+    backWidth1 += ( this.width/2-newWidthCube/4 );
+    backWidth2 += ( this.width/2+newWidthCube/4 );
+    
+    var backHeight1 = ( this.height/2-newSide*1.75 ) + ( Math.odd(this.line) ? newSide*.75 : 0 );
+    var backHeight2 = ( this.height/2-newSide*0.25 ) + ( Math.odd(this.line) ? newSide*.75 : 0 );
+    
+    var backHeight3 = newWidthCube;
+    var backWidth4  = newSide*3;
+	
+	css.insertRule('*','transform:translate3d(0,0,0)');
+	css.insertRule('.roll, .pitch, .yaw, .block','display: block','position: absolute','transform-style:preserve-3d');
+	css.insertRule('.pitch','transform:rotateX(-35deg)');
+	css.insertRule('.yaw','transform:rotateY(45deg);margin: 0px');
+	css.insertRule('#front','transform: translateZ(200px) scale('+(1.226/scale)+');');// valeur mystérieuse
+	css.insertRule('#big','transform: translateZ(300px) scale('+(1.226/scale)+');');
+    css.insertRule('.block','display: block;position: absolute');
+	css.insertRule('.face','backface-visibility:hidden','display:block','position:absolute');
 	
 	if( this.navWidth > this.navHeight )
-    	this.css.insertRule('.roll',
+    	css.insertRule('.roll',
     		'transform:translateY('+this.width.toFixed(1)+'px) rotateZ(-90deg)',
     		'top:'+(-offsetWidth).toFixed(1)+'px',
     		'left:'+offsetHeight.toFixed(1)+'px'
     	);
 	else
-		this.css.insertRule('.roll','left:'+offsetWidth.toFixed(1)+'px','top:'+offsetHeight.toFixed(1)+'px');
-	
-};
+		css.insertRule('.roll','left:'+offsetWidth.toFixed(1)+'px','top:'+offsetHeight.toFixed(1)+'px');
 
-HexaGrid.prototype.calculating = function() {
+	$('#body').css({
+		backgroundSize: backHeight3+'px '+backWidth4+'px',
+		backgroundPosition: 
+			backWidth1+'px '+backHeight1+'px, '+backWidth1+'px '+backHeight1+'px, '+
+			backWidth2+'px '+backHeight2+'px, '+backWidth2+'px '+backHeight2+'px, '+
+			backWidth1+'px '+backHeight1+'px, '+backWidth2+'px '+backHeight2+'px, '+
+			backWidth1+'px '+backHeight1+'px, '+backWidth2+'px '+backHeight2+'px'
+    });
 	
-    this.widthCube = this.width/(this.column+1);
-    this.demiWidthCube = this.widthCube/2;
-    this.side = this.demiWidthCube/Math.cos(Math.PI*30/180);
-    
-    this.maxLine = Math.floor(this.height/((this.side/2)*3));
-    
-    this.lineHeight = (this.side/2)*(this.line*3+1);
-    this.lineStart = (this.height-this.lineHeight)/2;
-    this.linesup = Math.ceil(this.lineStart/this.side);
-    
 };
 
 HexaGrid.prototype.reset = function( mData )  {
@@ -89,48 +116,13 @@ HexaGrid.prototype.reset = function( mData )  {
     this.line = mData.line;
     
 	this.css.reset();
-    this.calculating();
-    
-    var backWidth1  = this.widthCube*0.75;
-    var backWidth2  = this.widthCube*1.25;
-    var backHeight1 = this.height/2+this.side/2;
-    var backHeight2 = this.height/2+this.side*2;
-	
-	this.css.insertRule('#body',
-		'background-color:#1b1b1b',
-		'background-image: '+
-		'linear-gradient( 30deg, #171717 0%, #131313 12%, transparent 12.5%, transparent 87%, #1b1b1b 87.5%, #171717),'+
-		'linear-gradient(150deg, #171717 0%, #1b1b1b 12%, transparent 12.5%, transparent 87%, #131313 87.5%, #171717),'+
-		'linear-gradient( 30deg, #171717 0%, #131313 12%, transparent 12.5%, transparent 87%, #1b1b1b 87.5%, #171717),'+
-		'linear-gradient(150deg, #171717 0%, #1b1b1b 12%, transparent 12.5%, transparent 87%, #131313 87.5%, #171717),'+
-		'linear-gradient( 60deg, #080808 0%, #0f0f0f 25%, transparent 25.5%, transparent 75%, #0f0f0f 75%  , #151515),'+
-		'linear-gradient( 60deg, #080808 0%, #0f0f0f 25%, transparent 25.5%, transparent 75%, #0f0f0f 75%  , #151515),'+
-		'linear-gradient(-60deg, #131313 0%, #171717 25%, transparent 25.5%, transparent 75%, #171717 75%  , #1b1b1b),'+
-		'linear-gradient(-60deg, #131313 0%, #171717 25%, transparent 25.5%, transparent 75%, #171717 75%  , #1b1b1b)',
-		'background-size:'+this.widthCube+'px '+(this.side*3)+'px',
-		'background-position: '+
-			backWidth1+'px '+backHeight1+'px, '+backWidth1+'px '+backHeight1+'px, '+
-			backWidth2+'px '+backHeight2+'px, '+backWidth2+'px '+backHeight2+'px, '+
-			backWidth1+'px '+backHeight1+'px, '+backWidth2+'px '+backHeight2+'px, '+
-			backWidth1+'px '+backHeight1+'px, '+backWidth2+'px '+backHeight2+'px'
-    );
-    
-    if( this.maxLine < mData.line ) return false;
-    
 	this.initCSS();
     
     for( var x = 0 ; x <= Math.ceil(mData.column)-1 ; x ++) {
-    	
     	this.grid[x] = [];
-    	
-	    for( var y = 0 ; y <= mData.line-1 ; y ++) {
-	    	
-	    	this.grid[x][y] = new Hexa( this.css, x, y, this.side );
-            
-	    }
+	    for( var y = 0 ; y <= mData.line-1 ; y ++)
+	    	this.grid[x][y] = new Hexa( this.css, x, y, this.side, this.widthCube/this.scale, this.side/this.scale );
     }
-	
-	return true;
 	
 };
 
