@@ -9,4 +9,5 @@
 Prononcer **Hexa**gone en français  
 et bob**ble** avec un mauvais accent anglais : **Hexa-ble**
 
-test de BitSyncHub
+----
+GNU General Public License version 3.0 (GPLv3)
