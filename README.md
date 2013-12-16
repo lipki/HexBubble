@@ -8,3 +8,5 @@
 
 Prononcer **Hexa**gone en français  
 et bob**ble** avec un mauvais accent anglais : **Hexa-ble**
+
+test de BitSyncHub
