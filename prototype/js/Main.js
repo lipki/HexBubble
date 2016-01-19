@@ -60,6 +60,8 @@
         this.win = 0;
         
         this.init = function () {
+		
+		console.log(('adventure').toLocaleString());
             
             //size init
             Hex.init ( Round0.size.x, Round0.size.y+3, window.innerWidth, window.innerHeight, 10, 10 );
@@ -113,7 +115,7 @@
         this.start = function() {
             
             var mi = this;
-            Sprite.animAdd( 'title', 'alert', ['hexable', 100], null, function(){
+            Sprite.animAdd( 'title', 'alert', ['hex/nbubble', 100], null, function(){
                 mi.G.initRound(mi.rounds[mi.round]);
                 Tile.draw(mi.G);
                 mi.canon.init(mi.G.set);

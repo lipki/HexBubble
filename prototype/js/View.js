@@ -22,9 +22,9 @@
             this.width = nx*width+(this.mwidth*2);
             this.height = ny*(rayon*1.5)+rayon/2+(this.mheight*2);
             
-            this.content.style.width = this.width;
-            this.content.style.height = this.height;
-            this.content.style.marginLeft = -this.width/2;
+            this.content.style.width = this.width+'px';
+            this.content.style.height = this.height+'px';
+            this.content.style.marginLeft = -(this.width/2)+'px';
             
         }
         
