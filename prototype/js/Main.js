@@ -49,8 +49,8 @@
         'maps/round39.js'
             ],
         function() {
-            environment['Main'] = new Main();
-            environment['Main'].init();
+            Main = new Main();
+            Main.init();
         });
 
     function Main () {
@@ -60,12 +60,10 @@
         this.win = 0;
         
         this.init = function () {
-		
-		console.log(('adventure').toLocaleString());
             
             //size init
-            Hex.init ( Round0.size.x, Round0.size.y+3, window.innerWidth, window.innerHeight, 10, 10 );
-            View.init( Round0.size.x, Round0.size.y+3, Hex.rayon, Hex.width, 10, 10 );
+            View.init( window.innerWidth, window.innerHeight );
+            Hex.init ( Round0.size.x, Round0.size.y+3, View.width, View.height );
             
             //model
             this.G = new Grid(Round0);
@@ -83,18 +81,13 @@
             View.add('balle');
             View.add('alert');
             
-            document.body.appendChild(View.body.canvas);
-            document.body.appendChild(View.content);
-            View.body.canvas.width = window.innerWidth;
-            View.body.canvas.height = window.innerHeight;
-            Sprite.body(View.body.ctx);
-            
             //pregen
             var tile = new Tile(this, new Point(4,5));
             for( var t = 1, l = Round0.range.length ; t < l ; t++ ) {
                 tile.switchOn(Round0.range[t]);
                 tile.draw();
             }
+            Sprite.body(View.body.ctx);
             Tile.drawBack(this.G);
             
             //sound
@@ -103,9 +96,10 @@
             this.fall = new Audio("sound/3603.wav");
             
             // draw
+            Sprite.body(View.body.ctx);
             Tile.drawBack(this.G);
             
-            this.canon = new Canon(new Point(View.width/2, View.height - Hex.drayon), -80, 80, 1);
+            this.canon = new Canon(this, new Point(View.width/2, View.height - Hex.drayon), -80, 80, 1);
             
             //start
             this.start();
@@ -115,7 +109,7 @@
         this.start = function() {
             
             var mi = this;
-            Sprite.animAdd( 'title', 'alert', ['hex/nbubble', 100], null, function(){
+            //Sprite.animAdd( 'title', 'alert', ['hex/nbubble', 100], null, function(){
                 mi.G.initRound(mi.rounds[mi.round]);
                 Tile.draw(mi.G);
                 mi.canon.init(mi.G.set);
@@ -127,7 +121,7 @@
                         });
                     });
                 });
-            });
+            //});
             
         }
         
@@ -235,9 +229,10 @@
             
             this.all = [];
             for( var x = 0;  x < Hex.nx;  x++ )
-            for( var y = 1;  y < Hex.ny;  y++ )
+            for( var y = 1;  y < Hex.ny-2;  y++ ) {
                 if(this.G.get(new Point(x, y)).on)
                     this.all.push(x+Hex.nx*y);
+            }
                 
             for( var x = 0; x < Hex.nx;  x++ )
                 if(this.G.get(new Point(x, 0)).on) {
@@ -294,4 +289,4 @@
         }
     }
     
-})(this);
+})();

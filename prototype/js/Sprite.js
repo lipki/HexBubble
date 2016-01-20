@@ -187,6 +187,36 @@
         
         }
         
+        this.trace = function ( parcour ) {
+            
+            for ( var k = 0, l = parcour.length ; k < l ; k++ ) {
+            
+                var ctx = View['canon'].ctx;
+                var size = Hex.rayon/8;
+                var p = parcour[k].point;
+                
+                ctx.beginPath();
+                ctx.arc( p.x, p.y, size, 0, 2*Math.PI  );
+                
+                ctx.lineWidth = size/3;
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+                ctx.stroke();
+                
+                ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+                ctx.fill();
+                
+                ctx.closePath();
+            }
+            
+        }
+        
+        this.gaol = function ( tile ) {
+            
+            this.hex(View['canon'].ctx, tile.px, 'rgba(255,255,255,0.5)', Hex.rayon/5*4);
+            this.shadowOut(View['canon'].ctx, tile.px, Hex.rayon/5*4);
+            
+        }
+        
         this.move = function ( canon, stepp ) {
             
             View.clear('borderBalle');
@@ -240,16 +270,32 @@
         
         this.body = function( ctx ) {
             
-            var nw = window.innerWidth/(Hex.dwidth/2);
-            var nh = window.innerHeight/(Hex.drayon/2);
+            var rayon = Hex.rayon/2;
+            var width = Hex.dwidth;
+            var p = new Point(0,-rayon/2);
+            this.hex(ctx, p, '#222', rayon);
+            this.shadowIn(ctx, p, rayon);
+            p.x = width;
+            this.hex(ctx, p, '#222', rayon);
+            this.shadowIn(ctx, p, rayon);
+            p.x = width/2; p.y = rayon;
+            this.hex(ctx, p, '#222', rayon);
+            this.shadowIn(ctx, p, rayon);
+            p.x = 0; p.y = rayon*2.5;
+            this.hex(ctx, p, '#222', rayon);
+            this.shadowIn(ctx, p, rayon);
+            p.x = width;
+            this.hex(ctx, p, '#222', rayon);
+            this.shadowIn(ctx, p, rayon);
+            
+            var data = ctx.getImageData(0,0,width,rayon*3.5);
+            
+            var nw = window.innerWidth/width;
+            var nh = window.innerHeight/(rayon*3);
             
             for( var x = 0;  x < nw;  x++ )
             for( var y = 0;  y < nh;  y++ ) {
-                var p = new Point(x*Hex.dwidth-Hex.dwidth+Math.round(((window.innerWidth-(View.width-View.mwidth*2))/2)/(Hex.dwidth/2)),
-                                  window.innerHeight-(y*Hex.drayon*1.5)-View.mheight+Hex.drayon/2);
-                if( Math.isPair(y) ) p.x -= Hex.dwidth/2;
-                this.hex(ctx, p, '#222', Hex.rayon/2);
-                this.shadowIn(ctx, p, Hex.rayon/2);
+                ctx.putImageData(data, x*width, y*rayon*3);
             }
             
         }
@@ -521,25 +567,6 @@
             ctx.closePath();
             
         }
-        
-        /*this.trace = function (name, center, color, size) {
-            
-            var ctx = View[name].ctx;
-            
-            ctx.fillStyle= color;
-            ctx.beginPath();
-            ctx.arc( center.x, center.y, size, 0, 2*Math.PI  );
-            ctx.fill();
-            
-            ctx.lineCap="round";
-            ctx.lineJoin="round";
-            ctx.lineWidth = size/3;
-            ctx.strokeStyle = color;
-            ctx.stroke();
-            
-            ctx.closePath();
-            
-        }*/
         
         this.animAll();
         
