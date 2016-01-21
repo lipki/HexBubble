@@ -69,26 +69,23 @@
             this.G = new Grid(Round0);
             
             //view
-            View.add('sprite', true);
-            View.add('body');
-            View.add('back');
-            View.add('border');
-            View.add('borderGift');
-            View.add('borderBalle');
-            View.add('cube');
-            View.add('gift');
-            View.add('canon');
-            View.add('balle');
-            View.add('alert');
+            //View.add('sprite', 100, 100 );
+            View.add('body'  , 0, 0, window.innerWidth, window.innerHeight );
+            View.add('back'       , Hex.zerox-Hex.drayon, Hex.zeroy-Hex.drayon, Hex.aWidth+Hex.rayon, Hex.aHeight);
+            View.add('border'     , Hex.zerox-Hex.drayon, Hex.zeroy-Hex.drayon, Hex.aWidth+Hex.rayon, Hex.aHeight);
+            View.add('borderGift' , Hex.zerox-Hex.drayon, Hex.zeroy           , Hex.aWidth+Hex.rayon, Hex.aHeight);
+            View.add('borderBalle', Hex.zerox-Hex.drayon, Hex.zeroy-Hex.drayon, Hex.aWidth+Hex.rayon, Hex.aHeight);
+            View.add('cube'       , Hex.zerox-Hex.drayon, Hex.zeroy-Hex.drayon, Hex.aWidth+Hex.rayon, Hex.aHeight);
+            View.add('canon', Hex.zerox, Hex.zeroy, Hex.aWidth, Hex.aHeight);
+            View.add('balle', Hex.zerox, Hex.zeroy, Hex.aWidth, Hex.aHeight);
+            View.add('gift' , Hex.zerox, Hex.zeroy, Hex.aWidth, Hex.aHeight);
+            View.add('alert', 0, 0, window.innerWidth, window.innerHeight );
             
-            //pregen
-            var tile = new Tile(this, new Point(4,5));
-            for( var t = 1, l = Round0.range.length ; t < l ; t++ ) {
-                tile.switchOn(Round0.range[t]);
-                tile.draw();
-            }
-            Sprite.body(View.body.ctx);
-            Tile.drawBack(this.G);
+            //pregen sprite
+            //View.sprite.canvas.style.display = 'none';
+            //View.sprite.canvas.style.position = 'fixed';
+            //View.sprite.canvas.style.top = 0;
+            //View.sprite.canvas.style.left = 0;
             
             //sound
             this.poum = new Audio("sound/5642.wav");
@@ -102,25 +99,27 @@
             this.canon = new Canon(this, new Point(View.width/2, View.height - Hex.drayon), -80, 80, 1);
             
             //start
-            this.start();
+            var mi = this;
+            Sprite.animAdd( 'title', 'alert', ['hex/nbubble', 100], null, function(){
+                mi.start();
+            });
             
         }
         
         this.start = function() {
             
             var mi = this;
-            //Sprite.animAdd( 'title', 'alert', ['hex/nbubble', 100], null, function(){
-                mi.G.initRound(mi.rounds[mi.round]);
-                Tile.draw(mi.G);
-                mi.canon.init(mi.G.set);
-                
-                Sprite.animAdd( 'trois', 'alert', ['3', 50], null, function(){
-                    Sprite.animAdd( 'deux', 'alert', ['2', 50], null, function(){
-                        Sprite.animAdd( 'un', 'alert', ['1', 50], null, function(){
-                            mi.canon.inshoot = false;
-                        });
-                    });
-                });
+            mi.G.initRound(mi.rounds[mi.round]);
+            Tile.draw(mi.G);
+            mi.canon.init(mi.G.set);
+            mi.win = 0;
+            
+            //Sprite.animAdd( 'trois', 'alert', ['3', 50], null, function(){
+                //Sprite.animAdd( 'deux', 'alert', ['2', 50], null, function(){
+                    //Sprite.animAdd( 'un', 'alert', ['1', 50], null, function(){
+                        mi.canon.inshoot = false;
+                    //});
+                //});
             //});
             
         }
@@ -136,22 +135,10 @@
                     });
                     
                     var mi = this;
-                    Sprite.animAdd( 'next', 'alert', ['next '+(mi.round+1), 100], null, function() {
-                        
+                    Sprite.animAdd( 'next', 'alert', ['next '+(this.round+1), 100], null, function() {
                         Sprite.animDel( 'win' );
                         mi.round = (mi.round+1)%mi.rounds.length;
-                        mi.G.initRound(mi.rounds[mi.round]);
-                        Tile.draw(mi.G);
-                        mi.canon.init(mi.G.set);
-                        mi.win = 0;
-                        
-                        Sprite.animAdd( 'trois', 'alert', ['3', 20], null, function(){
-                            Sprite.animAdd( 'deux', 'alert', ['2', 20], null, function(){
-                                Sprite.animAdd( 'un', 'alert', ['1', 20], null, function(){
-                                    mi.canon.inshoot = false;
-                                });
-                            });
-                        });
+                        mi.start();
                     });
                 break;
                 case 'loss' :
@@ -159,20 +146,8 @@
                     
                     var mi = this;
                     Sprite.animAdd( 'loss', 'alert', ['loss', 100], null, function() {
-                        
                         mi.round = 0;
-                        mi.G.initRound(mi.rounds[mi.round]);
-                        Tile.draw(mi.G);
-                        mi.canon.init(mi.G.set);
-                        mi.win = 0;
-                        
-                        Sprite.animAdd( 'trois', 'alert', ['3', 20], null, function(){
-                            Sprite.animAdd( 'deux', 'alert', ['2', 20], null, function(){
-                                Sprite.animAdd( 'un', 'alert', ['1', 20], null, function(){
-                                    mi.canon.inshoot = false;
-                                });
-                            });
-                        });
+                        mi.start();
                     });
                 break;
             }
@@ -190,6 +165,7 @@
             var mi = this;
             setTimeout(function(){
                 mi.check(mi.canon.goal);
+                Tile.draw(mi.G);
             }, 50);
             
             setTimeout(function(){
@@ -200,8 +176,6 @@
                     mi.canon.inshoot = false;
                 }
             }, 200);
-                
-            //setTimeout(function(){ mi.gameOver('bad'); }, 200);
             
         }
         
@@ -210,16 +184,16 @@
             this.G.addInGroup(tile);
             var tour = this.G.groups[tile.group];
             
-            if( tour.length >= 3 ) {
-                for( var t = 0, l = tour.length ; t < l ; t++ )
-                    tour[t].switchOff()
-                Tile.draw(this.G);
-                Sprite.animAdd( 'pouf', 'pouf', [tour]);
-                
-                this.pouf.pause();
-                this.pouf.fastSeek(0);
-                this.pouf.play();
-            }
+            if( tour.length < 3 ) return ;
+            
+            for( var t = 0, l = tour.length ; t < l ; t++ )
+                tour[t].switchOff()
+            Tile.draw(this.G);
+            Sprite.animAdd( 'pouf', 'pouf', [tour]);
+            
+            this.pouf.pause();
+            this.pouf.fastSeek(0);
+            this.pouf.play();
             
         }
         
@@ -228,61 +202,62 @@
             var indice = Date.now();
             
             this.all = [];
+            for( var y = 0;  y < Hex.ny-1;  y++ )
             for( var x = 0;  x < Hex.nx;  x++ )
-            for( var y = 1;  y < Hex.ny-2;  y++ ) {
                 if(this.G.get(new Point(x, y)).on)
                     this.all.push(x+Hex.nx*y);
-            }
+            
+            if( this.all.length == 0 ) return ;
                 
             for( var x = 0; x < Hex.nx;  x++ )
-                if(this.G.get(new Point(x, 0)).on) {
-                    var hexZ = this.G.get(new Point(x, 0));
-                    this.FallStepTwo(hexZ, indice);
-                }
+                if(this.G.get(new Point(x, 0)).on)
+                    this.FallStepTwo(this.G.get(new Point(x, 0)), indice, 0);
+            
+            if( this.all.length == 0 ) return ;
             
             var win = false;
             this.tour = [];
-            if( this.all.length > 0 ) {
-                for( var t = 0, l = this.all.length ; t < l ; t++ ) {
-                    var lit = this.all[t];
-                    var point = new Point(lit%Hex.nx, Math.floor(lit/Hex.nx));
-                    var tile = this.G.get(point);
-                    if( tile.type.indexOf('gift') != -1 ) {
-                        if( win === false ) win = true;
-                    } else
-                        tile.switchOff();
-                    this.tour.push(tile);
-                }
-                Tile.draw(this.G);
-                Sprite.animAdd( 'pouf', 'pouf', [this.tour]);
-                    
-                this.fall.pause();
-                this.fall.fastSeek(0);
-                this.fall.play();
+            
+            for( var t = 0, l = this.all.length ; t < l ; t++ ) {
+                var lit = this.all[t];
+                var point = new Point(lit%Hex.nx, Math.floor(lit/Hex.nx));
+                var tile = this.G.get(point);
+                if( tile.type.indexOf('gift') != -1 ) {
+                    if( win === false ) win = true;
+                } else
+                    tile.switchOff();
+                this.tour.push(tile);
             }
+            Tile.draw(this.G);
+            Sprite.animAdd( 'pouf', 'pouf', [this.tour]);
+                
+            this.fall.pause();
+            this.fall.fastSeek(0);
+            this.fall.play();
+            
             if( win !== false ) this.gameOver('win');
             
         }
         
-        this.FallStepTwo = function(tile, indice) {
+        this.FallStepTwo = function(tile, indice, step) {
             tile.indice = indice;
-            for( var n = 0, l = tile.near.length; n < l;  n++ )
-                if( tile.near[n].on ) {
-                    var index = this.all.indexOf(tile.near[n].point.x+Hex.nx*tile.near[n].point.y);
-                    if(index != -1)
-                        this.all.splice(this.all.indexOf(tile.near[n].point.x+Hex.nx*tile.near[n].point.y), 1);
-                    if( tile.near[n].indice != indice )
-                        this.FallStepTwo(tile.near[n], indice);
-                }
+            for( var n = 0, l = tile.near.length; n < l;  n++ ) {
+                if( !tile.near[n].on ) continue;
+                
+                var index = this.all.indexOf(tile.near[n].point.x+Hex.nx*tile.near[n].point.y);
+                if(index != -1)
+                    this.all.splice(this.all.indexOf(tile.near[n].point.x+Hex.nx*tile.near[n].point.y), 1);
+                if( tile.near[n].indice != indice )
+                    this.FallStepTwo(tile.near[n], indice, step++);
+            }
         }
         
         this.out = function (tile) {
             
             var out = [];
-            for( var x = 0; x < Hex.nx;  x++ ) {
+            for( var x = 0; x < Hex.nx;  x++ )
                 if(this.G.get(new Point(x, Hex.ny-3)).on)
                     out.push('out');
-            }
             
             if( out.length > 0 ) this.gameOver('loss');
             

@@ -5,14 +5,14 @@
         
         this.M = main;
         this.point = point;
-        this.precision = Hex.rayon/5;
+        this.precision = Hex.rayon/2;
         
         this._angle = 0;
         this.angleMin = angleMin;
         this.angleMax = angleMax;
         this.angleStep = angleStep;
         
-        this.option = {debug:false, trace:true, ghost:false, switch:false, demi:false, micro:false, percante:false, bombe:false };
+        this.option = {debug:true, trace:true, ghost:false, switch:false, demi:false, micro:false, percante:false, bombe:false };
         
         this.goal;
             
@@ -38,12 +38,6 @@
             window.addEventListener('mousemove', function (e) {mi.move(e)});
             window.addEventListener("keydown", function (e) {mi.key(e)});
             
-            var mi = this;
-            Sprite.animAdd( 'canon', 'canon', [this], function() {
-                if( mi.inshoot == false && mi.option.trace ) mi.calc();
-                if( mi.option.trace || mi.option.debug ) mi.trace();
-            });
-            
         }
         
         this.key = function (e) {
@@ -68,7 +62,7 @@
             
             /*var hex = Hex.pixelToHex(new Point(e.layerX, e.layerY));
             console.log(hex);
-            if( hex && this.M.G.is(hex) ) {
+            if( hex && this.M.G.get(hex) ) {
                 var hex = this.M.G.get(hex);
                 console.log(hex);
                 Sprite.hex(View['balle'].ctx, hex.px, 'rgba(255,255,255,0.5)', Hex.rayon/5*4);
@@ -76,18 +70,28 @@
             }*/
 
             this.angle = Math.atan2(x, y)/Math.PI*180;
+            
+            Sprite.canon( this );
+            if( this.inshoot == true || !this.option.trace ) return ;
+            
+            this.calc();
+            
+            if( this.option.trace || this.option.debug ) this.trace();
+            
         }
 
         this.pan = function (e) {
-            if( !this.inshoot ) {
-                this.calc();
-                this.inshoot = true;
-                this.ballSwitch();
-                var mi = this;
-                Sprite.animAdd( 'move', 'move', [this], null , function(){
-                    mi.M.pan();
-                });
-            }
+            if( this.inshoot ) return ;
+            
+            this.calc();
+            this.inshoot = true;
+            this.ballSwitch();
+            var mi = this;
+            Sprite.animAdd( 'move', 'move', [this], null , function(){
+                View.clear('borderBalle');
+                View.clear('balle');
+                mi.M.pan();
+            });
         }
         
         this.ballSwitch = function () {
@@ -97,55 +101,44 @@
                 this.ballRes = this.types[Math.floor(Math.random()*this.types.length)];
                 Sprite.ballRes(this);
             }
+            Sprite.canon( this );
         }
         
         this.calc = function () {
             
-            var cacheName = this.point.x+'_'+this.point.y+'_'+this.angle;
-            var ret = Deja.read('calc', cacheName);
-            if( ret === false ) {
+            this.pico = this.calcPico();
             
-                var Vp = new Point(this.point.x, this.point.y);
-                var Va = this.angle-90;
-                var rebond = 0;
-                var rebondY = Math.abs(Math.tan(Math.PI / 180 * Va) * (Hex.aWidth-Hex.rayon*2));
+            this.list = [];
+            for ( var k = 1, l = this.pico.length ; k < l ; k++ ) {
                 
-                this.pico = [];
-                this.list = [];
+                var hex = Hex.pixelToHex(this.pico[k].point);
+                var last = this.list[this.list.length-1];
                 
-                for( var i = 0; i < 1200; i++ ) {
-                    
-                    Vp.x += this.precision * Math.cos(Math.PI / 180 * Va);
-                    Vp.y += this.precision * Math.sin(Math.PI / 180 * Va);
-                    
-                    if( Vp.x > View.width-Hex.zerox-Hex.rayon || Vp.x < Hex.zerox+Hex.rayon ) {
-                        
-                        if( Vp.x > View.width-Hex.zerox-Hex.rayon ) Vp.x = View.width-Hex.zerox-Hex.rayon;
-                        if( Vp.x < Hex.zerox+Hex.rayon ) Vp.x = Hex.zerox+Hex.rayon;
-                        
-                        Vp.y = this.point.y-rebondY*rebond-rebondY/2;
-                        
-                        Va = -Va+180;
-                        rebond ++;
-                        
-                    } else if( Vp.y < Hex.rayon ) {
-                        break;
-                    }
-                    
-                    var hex = Hex.pixelToHex(Vp);
-                    var last = this.list[this.list.length-1];
-                    
-                    if( ( !last || !last.point.egal(hex) ) && this.M.G.is(hex) ) 
-                        this.list.push(this.M.G.get(hex));
-                    
-                    this.pico.push({point:new Point (Vp.x, Vp.y), hex:hex, rebond:rebond});
-                }
-            
-                Deja.cache('calc', cacheName, [this.pico, this.list]);
+                console.log('---');
+                console.log(this.pico[k].point);
+                /*console.log(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0));
+                console.log(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0)));
+                console.log(this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0))));
+                console.log(this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0))).on);*/
                 
-            } else {
-                this.pico = ret[0];
-                this.list = ret[1];
+                View['canon'].ctx.beginPath();
+                var p = Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0);
+                View['canon'].ctx.lineTo( p.x, p.y );
+                var p = Sprite.hexCorner(this.pico[k].point, Hex.rayon, 3);
+                View['canon'].ctx.lineTo( p.x, p.y );
+                View['canon'].ctx.fillStyle = 'rgba(255,0,0,0.5)';
+                View['canon'].ctx.fill();
+                View['canon'].ctx.closePath();
+                
+                /*if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0))).on ) break;
+                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 1))).on ) break;
+                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 2))).on ) break;
+                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 3))).on ) break;
+                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 4))).on ) break;
+                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 5))).on ) break;*/
+                
+                //if( ( !last || !last.point.egal(hex) ) && this.M.G.get(hex) && !this.M.G.get(hex).on ) 
+                this.list.push(this.M.G.get(hex));
             }
             
             if(this.option.ghost) {
@@ -159,11 +152,40 @@
             
             this.goal = this.list[k];
             
-            this.parcour = [];
-            for ( var k = 1, l = this.pico.length ; k < l ; k++ ) {
-                if( this.goal != undefined && this.pico[k].hex.egal(this.goal.point) ) break;
-                if (k%7 == 0) this.parcour.push(this.pico[k]);
+        }
+        
+        this.calcPico = function() {
+            
+            var Vp = new Point(this.point.x, this.point.y);
+            var Va = this.angle-90;
+            var rebond = 0;
+            var rebondY = Math.abs(Math.tan(Math.PI / 180 * Va) * (Hex.aWidth-Hex.rayon*2));
+            
+            var pico = [];
+            
+            for( var i = 0; i < 1200; i++ ) {
+                
+                Vp.x += this.precision * Math.cos(Math.PI / 180 * Va);
+                Vp.y += this.precision * Math.sin(Math.PI / 180 * Va);
+                
+                if( Vp.y < Hex.rayon ) break;
+                
+                if( Vp.x > View.width-Hex.zerox-Hex.rayon || Vp.x < Hex.zerox+Hex.rayon ) {
+                    
+                    if( Vp.x > View.width-Hex.zerox-Hex.rayon ) Vp.x = View.width-Hex.zerox-Hex.rayon;
+                    if( Vp.x < Hex.zerox+Hex.rayon ) Vp.x = Hex.zerox+Hex.rayon;
+                    
+                    Vp.y = this.point.y-rebondY*rebond-rebondY/2;
+                    
+                    Va = -Va+180;
+                    rebond ++;
+                    
+                }
+                
+                pico.push({point:new Point (Math.round(Vp.x), Math.round(Vp.y)), rebond:rebond});
             }
+        
+            return pico;
             
         }
         
@@ -182,9 +204,12 @@
                         if(this.list[k].on) size = Hex.rayon/3;
                         Sprite.gaol( this.list[k] );
                     }
+                
+                //for ( var k = 1, l = this.pico.length ; k < l ; k++ )
+                //    Sprite.hex(View['canon'].ctx, this.pico[k].point, 'rgba(255,0,0,0.5)', Hex.rayon/5*4);
             }
             
-            if( this.parcour ) Sprite.trace( this.parcour );
+            if( this.pico ) Sprite.trace( this.pico );
             if( this.goal    ) Sprite.gaol( this.goal );
             
         }

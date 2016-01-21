@@ -5,12 +5,21 @@
         return i%2 == 0;
     }
     
+    /** 
+     * Class representing a point.
+     * @param {number} x - The x value.
+     * @param {number} y - The y value.
+     */
     environment['Point'] = function Point (x, y) {
         this.x = x;
         this.y = y;
         
-        this.egal = function(one) {
-            return this.x == one.x && this.y == one.y;
+        /**
+         * Test for equality with another point
+         * @return {boolean} point - true for equality.
+         */
+        this.egal = function( point ) {
+            return this.x == point.x && this.y == point.y;
         }
     }
     
@@ -29,7 +38,7 @@
             Deja.lcache[func] = {};
         if( Deja.lcache[func]['_'+args+'_'] != undefined )
             return Deja.lcache[func]['_'+args+'_'];
-        else return false;
+        return false;
     }
     
 })(this);

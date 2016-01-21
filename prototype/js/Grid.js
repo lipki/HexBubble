@@ -17,6 +17,9 @@
             
             for( var g = 0;  g < this.gridL;  g++ )
                 this.grid[g] = new Tile(this, this.gridToCoo(g));
+            
+            for( var g = 0;  g < this.gridL;  g++ )
+                this.grid[g].check();
         }
         
         this.initRound = function( level ) {
@@ -26,22 +29,22 @@
             this.gifts = [];
             this.set = null;
             
-            for( var g = 0;  g < this.gridL;  g++ ) {
-                
+            for( var g = 0;  g < this.gridL;  g++ )
                 this.grid[g].switchOff();
+            
+            for( var g = 0;  g < this.gridL;  g++ ) {
                 
                 var cas = this.lvl.map[g];
                 var type = this.lvl.range[cas];
-                if( cas != undefined && type != '' ) {
-                    this.grid[g].switchOn(type);
-                    this.addInGroup(this.grid[g]);
-                    if( type.indexOf('gift') != -1 )
-                        this.gifts.push(this.grid[g]);
-                }
+                
+                if( cas == undefined || type == '' ) continue;
+                
+                this.grid[g].switchOn(type);
+                this.addInGroup(this.grid[g]);
+                if( type.indexOf('gift') != -1 )
+                    this.gifts.push(this.grid[g]);
+                
             }
-            
-            for( var g = 0;  g < this.gridL;  g++ )
-                this.grid[g].check();
             
             this.makeSet();
         }
@@ -78,10 +81,10 @@
         this.makeSet = function() {
             this.set = [];
             for( var g = 0, l = this.grid.length ; g < l ; g++ )
-                if( this.grid[g].on )
-                    if( this.lvl.special.indexOf(this.grid[g].type) == -1 )
-                        if( this.set.indexOf(this.grid[g].type) == -1 )
-                            this.set.push(this.grid[g].type);
+                if( this.grid[g].on
+                 && this.lvl.special.indexOf(this.grid[g].type) == -1 
+                 && this.set.indexOf(this.grid[g].type) == -1 )
+                    this.set.push(this.grid[g].type);
             return this.set;
         }
         
@@ -93,16 +96,13 @@
             return new Point(grid%this.lvl.size.x, Math.floor(grid/this.lvl.size.x));
         }
         
-        this.is = function(point) {
-            var g = this.cooToGrid(point);
-            if( ( Math.isPair(point.y) || point.x != 0 ) && point.y < this.lvl.size.y )
-                 return this.grid[g] != undefined;
-            else return false;
-        }
-        
         this.get = function(point) {
+            if( point.x < 0 || point.y < 0 || point.x >= Hex.nx || point.y >= Hex.ny )
+                return false;
             var g = this.cooToGrid(point);
-            return this.grid[g];
+            if( ( Math.isPair(point.y) || point.x != 0 ) && point.y < this.lvl.size.y && this.grid[g] != undefined )
+                return this.grid[g];
+            return false;
         }
         
         this.construct(level);
@@ -112,27 +112,23 @@
     environment['Tile'] = function (grid, point) {
         
         this.drawBack = function () {
-            
-            if( this.G.is(point) ) Sprite.tileBack(this);
-            
+            if( this.G.get(point) ) Sprite.tileBack(this);
         }
         
         this.draw = function () {
-            
             if( this.on ) Sprite.tileOn( this );
-            
         }
         
         this.switchOn = function (type) {
             this.on = true;
             this.type = type;
+            this.group = false;
         }
         
         this.switchOff = function () {
             this.on = false;
             this.type = '';
             this.group = false;
-            this.step = 0;
         }
         
         this.check = function () {
@@ -151,7 +147,7 @@
         }
         
         this.checkAdd = function (point) {
-            if(this.G.is(point))
+            if(this.G.get(point))
                 this.near.push(this.G.get(point));
         }
         
@@ -190,13 +186,13 @@
             this.nx = nx;
             this.ny = ny;
             
+            this.rayon = (vh/(ny*3+1))*2;
+            this.dwidth = Math.floor(this.rayon * Math.cos(Math.PI / 180 * 30));
+            this.drayon = Math.round(Math.tan(Math.PI / 180 * 30) * this.dwidth);
+            
             if(nx/ny > vw/vh) {
                 this.dwidth = Math.floor((vw-mwidth*2)/(nx*2));
-                this.drayon = Math.tan(Math.PI / 180 * 30) * this.dwidth;
-            } else {
-                this.rayon = (vh/(ny*3+1))*2;
-                this.dwidth = Math.floor(this.rayon * Math.cos(Math.PI / 180 * 30));
-                this.drayon = Math.tan(Math.PI / 180 * 30) * this.dwidth;
+                this.drayon = Math.round(Math.tan(Math.PI / 180 * 30) * this.dwidth);
             }
             
             this.rayon = this.drayon*2;
@@ -204,7 +200,7 @@
             
             this.aWidth = this.width*this.nx;
             this.aHeight = (this.rayon*1.5)*this.ny+this.drayon;
-            this.zerox = (View.width-Hex.aWidth)/2;
+            this.zerox = Math.floor((View.width-Hex.aWidth)/2);
             this.zeroy = this.drayon;
             
         }
@@ -222,9 +218,9 @@
             var bande = Math.floor(point.y/(this.drayon));
             
             var ret = new Point(0, Math.floor((point.y)/(this.rayon*1.5)));
+            ret.x = Math.floor((point.x+this.dwidth)/this.width);
             if( Math.isPair(ret.y) )
                  ret.x = Math.floor(point.x/this.width);
-            else ret.x = Math.floor((point.x+this.dwidth)/this.width);
             
             if( bande%3 == 0 ) {
                 var pc = new Point(Math.floor(point.x/(this.dwidth)),

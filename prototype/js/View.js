@@ -20,32 +20,26 @@
             this.height = height;
         }
         
-        this.add = function ( name, morphe ) {
+        this.add = function ( name, zx, zy, width, height ) {
             
             this[name] = {};
+            this[name].zx = zx;
+            this[name].zy = zy;
+            this[name].width = width;
+            this[name].height = height;
             this[name].canvas = document.createElement("canvas");
-            
-            if( morphe ) {
-                this[name].canvas.style.display = 'none';
-                this[name].canvas.width = 100;
-                this[name].canvas.height = 100;
-                this[name].canvas.style.position = 'fixed';
-                this[name].canvas.style.top = 0;
-                this[name].canvas.style.left = 0;
-            } else {
-                this[name].canvas.style.position = 'absolute';
-                this[name].canvas.width = window.innerWidth;
-                this[name].canvas.height = window.innerHeight;
-            }
-            
+            this[name].canvas.style.position = 'absolute';
+            this[name].canvas.width = this.width;
+            this[name].canvas.height = this.height;
+            this[name].canvas.setAttribute('data-name', name);
+        
             this.content.appendChild(this[name].canvas);
             this[name].ctx = this[name].canvas.getContext('2d');
             
         }
         
         this.clear = function (name) {
-            var view = this[name];
-            view.ctx.clearRect(0, 0, this.width, this.height);
+            this[name].ctx.clearRect(this[name].zx, this[name].zy, this[name].width, this[name].height);
         }
         
     }
