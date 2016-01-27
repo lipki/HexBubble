@@ -1,33 +1,38 @@
-;(function(environment){
+;(function(undefined){
     'use strict';
     
-    environment['Grid'] = function Grid (level) {
+    var A, U, C, S, G, H, V;
+    function Grid (main) {
         
-        this.lvl;
-        this.grid;
-        this.gridL;
-        this.set;
-        this.groups = [];
-        this.gifts = [];
+        this.init = function ( clas ) {
+            A = clas[0]; U = clas[1]; C = clas[2]; S = clas[3]; G = clas[4]; H = clas[5]; V = clas[6];
+        }
         
-        this.construct = function(lvl) {
-            this.lvl = lvl;
-            this.gridL = this.cooToGrid(new Point(lvl.size.x, lvl.size.y+1));
+        this.appInit = function () {
+            
+            this.nx = A.ref.gameGridSize.x;
+            this.ny = A.ref.gameGridSize.y+3;
+            
+            this.gridL = this.cooToGrid(new Point(this.nx, this.ny+1));
             this.grid = new Array(this.gridL);
+            this.set = [];
+            this.groups = [];
+            this.gifts = [];
             
             for( var g = 0;  g < this.gridL;  g++ )
-                this.grid[g] = new Tile(this, this.gridToCoo(g));
+                this.grid[g] = new Tile(this.gridToCoo(g));
             
             for( var g = 0;  g < this.gridL;  g++ )
                 this.grid[g].check();
-        }
+            
+        } 
+        
         
         this.initRound = function( level ) {
             
             this.lvl = level;
-            this.groups = [];
-            this.gifts = [];
-            this.set = null;
+            this.groups.length = 0;
+            this.gifts.length = 0;
             
             for( var g = 0;  g < this.gridL;  g++ )
                 this.grid[g].switchOff();
@@ -37,7 +42,7 @@
                 var cas = this.lvl.map[g];
                 var type = this.lvl.range[cas];
                 
-                if( cas == undefined || type == '' ) continue;
+                if( undefined === cas || '' === type ) continue;
                 
                 this.grid[g].switchOn(type);
                 this.addInGroup(this.grid[g]);
@@ -47,6 +52,8 @@
             }
             
             this.makeSet();
+            
+            Tile.draw(A);
         }
         
         this.addInGroup = function(tile) {
@@ -55,12 +62,13 @@
             var grouPot = [];
             
             for( var gr = 0, l = tile.near.length ; gr < l ; gr++ )
-                if( tile.near[gr].on && tile.near[gr].type == type )
+                if( tile.near[gr].on && tile.near[gr].type === type )
                     grouPot.push(tile.near[gr].group);
             
             grouPot.sort(function(a, b){return a-b});
+            var grouPotlength = grouPot.length;
             
-            if( grouPot.length == 0 ) {
+            if( 0 === grouPotlength ) {
                 this.groups.push([]);
                 tile.group = this.groups.length-1;
             } else
@@ -68,7 +76,7 @@
             
             this.groups[tile.group].push(tile);
             
-            for( var gr = 1, l = grouPot.length ; gr < l ; gr++ )
+            for( var gr = 1, l = grouPotlength ; gr < l ; gr++ )
                 if( grouPot[gr] > tile.group )
                     this.groups[tile.group] = this.groups[tile.group].concat(this.groups[grouPot[gr]]);
             
@@ -79,44 +87,49 @@
         }
         
         this.makeSet = function() {
-            this.set = [];
+            this.set = [].concat(A.ref.option);
             for( var g = 0, l = this.grid.length ; g < l ; g++ )
                 if( this.grid[g].on
-                 && this.lvl.special.indexOf(this.grid[g].type) == -1 
-                 && this.set.indexOf(this.grid[g].type) == -1 )
+                 && -1 === this.lvl.special.indexOf(this.grid[g].type) 
+                 && -1 === this.set.indexOf(this.grid[g].type) )
                     this.set.push(this.grid[g].type);
             return this.set;
         }
         
         this.cooToGrid = function(point) {
-            return point.x+this.lvl.size.x*point.y;
+            return point.x+this.nx*point.y;
         }
         
         this.gridToCoo = function(grid) {
-            return new Point(grid%this.lvl.size.x, Math.floor(grid/this.lvl.size.x));
+            return new Point(grid%this.nx, (grid/this.nx)|0);
         }
         
         this.get = function(point) {
-            if( point.x < 0 || point.y < 0 || point.x >= Hex.nx || point.y >= Hex.ny )
+            if( point.x < 0 || point.y < 0 || point.x >= H.nx || point.y >= H.ny )
                 return false;
             var g = this.cooToGrid(point);
-            if( ( Math.isPair(point.y) || point.x != 0 ) && point.y < this.lvl.size.y && this.grid[g] != undefined )
+            if( ( Math.isPair(point.y) || point.x != 0 ) && point.y < this.ny && this.grid[g] != undefined )
                 return this.grid[g];
             return false;
         }
         
-        this.construct(level);
-        
     }
     
-    environment['Tile'] = function (grid, point) {
+    function Tile (point) {
+        
+        this.point = point;
+        this.px = H.hexToPixel(point);
+        this.on = false;
+        this.type = '';
+        this.group = false;
+        this.near = [];
         
         this.drawBack = function () {
-            if( this.G.get(point) ) Sprite.tileBack(this);
+            if( G.get(point) ) S.tileBack(this);
         }
         
         this.draw = function () {
-            if( this.on ) Sprite.tileOn( this );
+            if( this.on ) S.tileOn( this );
         }
         
         this.switchOn = function (type) {
@@ -147,106 +160,32 @@
         }
         
         this.checkAdd = function (point) {
-            if(this.G.get(point))
-                this.near.push(this.G.get(point));
+            if(G.get(point))
+                this.near.push(G.get(point));
         }
-        
-        this.G = grid;
-        this.point = point;
-        this.px = Hex.hexToPixel(point);
-        this.on = false;
-        this.type = '';
-        this.group = false;
-        this.near = [];
         
     }
     
-    Tile.drawBack = function (G) {
-        View.clear('back');
+    Tile.drawBack = function () {
+        V.clear('back');
         for( var g = 0, l = G.grid.length ; g < l ; g++ )
             G.grid[g].drawBack();
         
     }
     
-    Tile.draw = function (G) {
-        View.clear('border');
-        View.clear('cube');
-        View.clear('borderGift');
-        View.clear('gift');
+    Tile.draw = function () {
+        V.clear('border');
+        V.clear('cube');
+        V.clear('borderGift');
+        V.clear('gift');
         for( var g = 0, l = G.grid.length ; g < l ; g++ )
             if(G.grid[g].on)
                 G.grid[g].draw();
         
     }
     
-    function Hexagone () {
+    var ready = new Event("hexbubble.class.grid.loaded");
+    ready.instance = new Grid();
+    document.dispatchEvent(ready);
     
-        this.init = function ( nx, ny, vw, vh ) {
-            
-            this.nx = nx;
-            this.ny = ny;
-            
-            this.rayon = (vh/(ny*3+1))*2;
-            this.dwidth = Math.floor(this.rayon * Math.cos(Math.PI / 180 * 30));
-            this.drayon = Math.round(Math.tan(Math.PI / 180 * 30) * this.dwidth);
-            
-            if(nx/ny > vw/vh) {
-                this.dwidth = Math.floor((vw-mwidth*2)/(nx*2));
-                this.drayon = Math.round(Math.tan(Math.PI / 180 * 30) * this.dwidth);
-            }
-            
-            this.rayon = this.drayon*2;
-            this.width = this.dwidth*2;
-            
-            this.aWidth = this.width*this.nx;
-            this.aHeight = (this.rayon*1.5)*this.ny+this.drayon;
-            this.zerox = Math.floor((View.width-Hex.aWidth)/2);
-            this.zeroy = this.drayon;
-            
-        }
-    
-        this.hexToPixel = function (point) {
-            var offset = Math.isPair(point.y) ? 0 : this.dwidth;
-            var px = new Point( this.width*point.x+this.dwidth-offset+this.zerox, this.rayon+point.y*this.rayon*1.5+this.zeroy );
-            return new Point(px.x, px.y);
-        }
-
-        this.pixelToHex = function (point) {
-            
-            var point = new Point(point.x-Hex.zerox, point.y-Hex.zeroy);
-            
-            var bande = Math.floor(point.y/(this.drayon));
-            
-            var ret = new Point(0, Math.floor((point.y)/(this.rayon*1.5)));
-            ret.x = Math.floor((point.x+this.dwidth)/this.width);
-            if( Math.isPair(ret.y) )
-                 ret.x = Math.floor(point.x/this.width);
-            
-            if( bande%3 == 0 ) {
-                var pc = new Point(Math.floor(point.x/(this.dwidth)),
-                                   Math.floor(point.y/(this.drayon)));
-                var re = new Point(point.x-(pc.x*this.dwidth),
-                                   point.y-(pc.y*this.drayon));
-                var po = new Point(re.x*100/this.dwidth,
-                                   re.y*100/this.drayon);
-                
-                if(Math.isPair(pc.x+pc.y) && po.x+po.y < 25 ) {
-                    ret.y--;
-                    if( Math.isPair(ret.y) ) ret.x--;
-                } else if( !Math.isPair(pc.x+pc.y) && 25-po.x+po.y < 25 ) {
-                    ret.y--;
-                    if( !Math.isPair(ret.y) ) ret.x++;
-                }
-                
-            }
-            
-            return ret;
-        }
-        
-    }
-    
-    var Hex = environment['Hex'] = new Hexagone();
-    
-
-    
-})(this);
+})();

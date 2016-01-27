@@ -1,26 +1,37 @@
-;(function(environment){
+;(function(undefined){
     'use strict';
     
     /** Classe regroupant tout les assets graphique */
-    function Sprite () {
+    function Sprite ( main ) {
         
-        // animate sprite
+        var A, U, C, S, G, H, V;
+        this.init = function ( clas ) {
+            A = clas[0]; U = clas[1]; C = clas[2]; S = clas[3]; G = clas[4]; H = clas[5]; V = clas[6];
+        }
         
-        this.animList = [];
-        this.animStep = 0;
+        this.appInit = function () {
+        
+            this.animList = [];
+            this.animStep = 0;
+            this.lastLoop = new Date;
+            
+            this.animAll();
+                
+        }
         
         /** Boucle avec requestAnimationFrame qui gère toute les animations */
         this.animAll = function () {
+            /*var thisLoop = new Date;
+            var fps = 1000 / (thisLoop - this.lastLoop);
+            this.lastLoop = thisLoop;
+            document.title=(Math.round(fps));*/
             
             for( var a = 0, l = this.animList.length ; a < l ; a++ ) {
-                if( this.animList[a] == null ) continue;
+                if( undefined === this.animList[a] ) continue;
                 
-                var name = this.animList[a].name;
-                var sprite = this.animList[a].sprite;
-                var start = this.animList[a].start;
-                var args = this.animList[a].args.concat([this.animStep-start, name]);
+                var args = this.animList[a].args.concat([this.animStep-this.animList[a].start, this.animList[a].name]);
                 var callbackStep = this.animList[a].callbackStep;
-                this[sprite].apply(this, args );
+                this[this.animList[a].sprite].apply(this, args );
                 if( callbackStep !=undefined ) callbackStep();
                     
             }
@@ -56,37 +67,38 @@
         this.animDel = function ( name ) {
             var animlist = [];
             for( var a = 0, l = this.animList.length ; a < l ; a++ )
-                if( this.animList[a].name == name )
+                if( this.animList[a].name === name )
                      var callbackend = this.animList[a].callbackend;
                 else animlist.push(this.animList[a]);
             this.animList = animlist;
             if( callbackend != undefined ) callbackend();
         }
         
-        this.animAll();
-        
         // game sprite
         
-        this.tileBack = function ( tile ) {
+        this.tileOn = function ( tile, size, ctx, ctxborder ) {
             
-            this.hex(View['back'].ctx, tile.px, '#181818', Hex.rayon);
-            //this.font(View['back'].ctx, tile.px, 'white', Hex.rayon/2, String(tile.group)[0] );
-            this.shadowIn(View['back'].ctx, tile.px, Hex.rayon);
+            var size = size || H.rayon;
+            var ctx = ctx || 'cube';
+            var ctxborder = ctxborder || 'border';
             
-        }
-        
-        this.tileOn = function ( tile ) {
+            var px = new Point(tile.px.x + H.drayon, tile.px.y +H.drayon);
             
             if( tile.type.indexOf('gift') != -1 )
                 this.tileGift( tile );
-            else if( tile.type == 'fixed' )
+            /*else if( 'fixed' === tile.type )
                 this.tileFixed( tile );
-            else  {
-                this.hex(View['border'].ctx, tile.px, 'white' , Hex.rayon, Hex.rayon/4);
-                this.hex(View['cube'].ctx, tile.px, tile.type, Hex.rayon);
-                //this.font(View['cube'].ctx, tile.px, 'white', Hex.rayon/2, String(tile.group)[0] );
-                this.shadowOut(View['cube'].ctx, tile.px, Hex.rayon);
-            }
+            else if( -1 !== A.ref.ballOption.indexOf(tile.type) ) {
+                this.hex(V[ctxborder].ctx, px, 'black' , size, 'white', H.rayon/4);
+                this.hex(V[ctx].ctx, px, 'black' , size);
+                this.font(V[ctx].ctx, px, 'white', size/2, tile.type[0] );
+                this.shadowOut(V[ctx].ctx, px, size);
+            } else  {
+                this.hex(V[ctxborder].ctx, px, tile.type, size, 'white' , H.rayon/4);
+                this.hex(V[ctx].ctx, px, tile.type, size);
+                //this.font(V['cube'].ctx, px, 'white', size/2, String(tile.group)[0] );
+                this.shadowOut(V[ctx].ctx, px, size);
+            }*/
             
         }
         
@@ -94,13 +106,12 @@
             
             var px = p || tile.px;
             
-            this.hex(View['border'].ctx, px, 'white', Hex.rayon, Hex.rayon/4);
-            this.hex(View['border'].ctx, px, 'white', Hex.rayon);
-            this.hex(View['cube'].ctx, px, 'DarkKhaki', Hex.rayon);
-            this.shadowOut(View['cube'].ctx, px, Hex.rayon);
+            this.hex(V['border'].ctx, px, 'DarkKhaki', H.rayon, 'white', H.rayon/4);
+            this.hex(V['cube'].ctx, px, 'DarkKhaki', H.rayon);
+            this.shadowOut(V['cube'].ctx, px, H.rayon);
             
-            this.hex(View['cube'].ctx, px, 'DarkKhaki', Hex.rayon/2);
-            this.shadowIn(View['cube'].ctx, px, Hex.rayon/2);
+            this.hex(V['cube'].ctx, px, 'DarkKhaki', H.drayon);
+            this.shadowIn(V['cube'].ctx, px, H.drayon);
             
         }
         
@@ -109,10 +120,9 @@
             var px = p || tile.px;
             var color = 'red';
             
-            this.hex(View['borderGift'].ctx, px, 'white', Hex.rayon, Hex.rayon/4);
-            this.hex(View['borderGift'].ctx, px, 'white', Hex.rayon);
-            this.hex(View['gift'].ctx, px, color, Hex.rayon);
-            this.shadowOut(View['gift'].ctx, px, Hex.rayon);
+            this.hex(V['borderGift'].ctx, px, color, H.rayon, 'white', H.rayon/4);
+            this.hex(V['gift'].ctx, px, color, H.rayon);
+            this.shadowOut(V['gift'].ctx, px, H.rayon);
             
             var p1 = new Point( tile.point.x-1, tile.point.y );
             if(Math.isPair(tile.point.y)) {
@@ -128,16 +138,15 @@
                 if( !tile.near[gr].on || tile.near[gr].type != 'gift' ) continue;
                 
                      if( p1.egal(tile.near[gr].point) )
-                    var p = new Point(px.x-Hex.dwidth, px.y+Hex.drayon);
+                    var p = new Point(px.x-H.dwidth, px.y+H.drayon);
                 else if( p2.egal(tile.near[gr].point)
                       || p3.egal(tile.near[gr].point) )
-                    var p = new Point(px.x, px.y-Hex.rayon);
+                    var p = new Point(px.x, px.y-H.rayon);
             
                 if( p != undefined ) {
-                    this.hex(View['borderGift'].ctx, p, 'white', Hex.rayon/2, Hex.rayon/4);
-                    this.hex(View['borderGift'].ctx, p, 'white', Hex.rayon/2);
-                    this.hex(View['gift'].ctx, p, color, Hex.rayon/2);
-                    this.shadowOut(View['gift'].ctx, p, Hex.rayon/2);
+                    this.hex(V['borderGift'].ctx, p, color, H.drayon, 'white', H.rayon/4);
+                    this.hex(V['gift'].ctx, p, color, H.drayon);
+                    this.shadowOut(V['gift'].ctx, p, H.drayon);
                 }
                 
             }
@@ -146,54 +155,52 @@
         
         this.canon = function ( canon ) {
             
-            var ctx = View['canon'].ctx;
-            View.clear('canon');
+            var ctx = V['canon'].ctx;
+            V.clear('canon');
             
             ctx.beginPath();
-            var p = this.hexCorner(canon.point, Hex.rayon, 2);
+            var p = H.hexCorner(canon.point, H.rayon, 2);
             ctx.lineTo( p.x, p.y );
             if(canon.angle <= -30)
-                 var p = this.hexCorner(canon.point, Hex.rayon*1.7, 3, canon.angle+90);
-            else var p = this.hexCorner(canon.point, Hex.rayon, 3);
+                 var p = H.hexCorner(canon.point, H.rayon*1.7, 3, canon.angle+90);
+            else var p = H.hexCorner(canon.point, H.rayon, 3);
             ctx.lineTo( p.x, p.y );
             if(canon.angle > -30 && canon.angle < 30)
-                 var p = this.hexCorner(canon.point, Hex.rayon*1.7, 4, canon.angle+30);
-            else var p = this.hexCorner(canon.point, Hex.rayon, 4);
+                 var p = H.hexCorner(canon.point, H.rayon*1.7, 4, canon.angle+30);
+            else var p = H.hexCorner(canon.point, H.rayon, 4);
             ctx.lineTo( p.x, p.y );
             if(canon.angle >= 30)
-                 var p = this.hexCorner(canon.point, Hex.rayon*1.7, 5, canon.angle-30);
-            else var p = this.hexCorner(canon.point, Hex.rayon, 5);
+                 var p = H.hexCorner(canon.point, H.rayon*1.7, 5, canon.angle-30);
+            else var p = H.hexCorner(canon.point, H.rayon, 5);
             ctx.lineTo( p.x, p.y );
-            var p = this.hexCorner(canon.point, Hex.rayon, 0);
+            var p = H.hexCorner(canon.point, H.rayon, 0);
             ctx.lineTo( p.x, p.y );
             
             ctx.lineCap="round";
             ctx.lineJoin="round";
-            ctx.lineWidth = Hex.rayon/4;
+            ctx.lineWidth = H.rayon/4;
             ctx.strokeStyle = 'white';
             ctx.stroke();
-            
-            ctx.fillStyle= 'white';
+                
+            ctx.fillStyle = 'white';
             ctx.fill();
             
             ctx.closePath();
             
-            this.hex(ctx, canon.point, canon.ball, Hex.rayon);
-            this.shadowOut(ctx, canon.point, Hex.rayon);
+            this.tileOn( {px:canon.point, type:canon.ball}, H.rayon, 'canon', 'canon' );
             
             if( !canon.inshoot ) return ;
             
-            this.hex(ctx, canon.point, canon.ball, Hex.rayon/5*4);
-            this.shadowIn(ctx, canon.point, Hex.rayon/5*4);
+            this.hex(ctx, canon.point, canon.ball, H.rayon/5*4);
+            this.shadowIn(ctx, canon.point, H.rayon/5*4);
             
         }
         
         this.ballRes = function ( canon ) {
             
-            var p = new Point(canon.point.x + Hex.rayon*2, canon.point.y+Hex.drayon);
-            this.hex(View['back'].ctx, p, 'white' , Hex.rayon/3*2, Hex.rayon/4);
-            this.hex(View['back'].ctx, p, canon.ballRes, Hex.rayon/3*2);
-            this.shadowOut(View['back'].ctx, p, Hex.rayon/3*2);
+            var p = new Point(canon.point.x + H.rayon*2, canon.point.y+H.drayon);
+            this.hex(V['back'].ctx, p, canon.ballRes, H.rayon/3*2, 'white', H.rayon/4);
+            this.shadowOut(V['back'].ctx, p, H.rayon/3*2);
         
         }
         
@@ -201,8 +208,8 @@
             
             for ( var k = 0, l = parcour.length ; k < l ; k++ ) {
             
-                var ctx = View['canon'].ctx;
-                var size = Hex.rayon/8;
+                var ctx = V['canon'].ctx;
+                var size = H.rayon/8;
                 var p = parcour[k].point;
                 
                 ctx.beginPath();
@@ -222,158 +229,223 @@
         
         this.gaol = function ( tile ) {
             
-            this.hex(View['canon'].ctx, tile.px, 'rgba(255,255,255,0.5)', Hex.rayon/5*4);
-            this.shadowOut(View['canon'].ctx, tile.px, Hex.rayon/5*4);
+            this.hex(V['canon'].ctx, tile.px, 'rgba(255,255,255,0.5)', H.rayon/5*4);
+            this.shadowOut(V['canon'].ctx, tile.px, H.rayon/5*4);
             
         }
         
         this.move = function ( canon, stepp ) {
             
             //balle
-            if( canon.pico[stepp] == undefined )
+            if( undefined === canon.pico[stepp] )
                 return this.animDel( 'move' );
             
             if( canon.pico[stepp-1] != undefined ) {
                 var step = canon.pico[stepp-1];
-                View.borderBalle.ctx.clearRect(step.point.x-Hex.rayon, step.point.y-Hex.rayon, step.point.x+Hex.rayon, step.point.y+Hex.rayon);
-                View.balle.ctx.clearRect(step.point.x-Hex.rayon, step.point.y-Hex.rayon, step.point.x+Hex.rayon, step.point.y+Hex.rayon);
+                V.borderBalle.ctx.clearRect(step.point.x-H.rayon, step.point.y-H.rayon, step.point.x+H.rayon, step.point.y+H.rayon);
+                V.balle.ctx.clearRect(step.point.x-H.rayon, step.point.y-H.rayon, step.point.x+H.rayon, step.point.y+H.rayon);
             }
             
             var step = canon.pico[stepp];
             
-            this.hex(View['borderBalle'].ctx, step.point, 'white' , Hex.rayon, Hex.rayon/4);
-            this.hex(View['balle'].ctx, step.point, canon.ballShoot, Hex.rayon);
-            this.shadowOut(View['balle'].ctx, step.point, Hex.rayon);
+            this.tileOn( {px:step.point, type:canon.ballShoot}, H.rayon, 'balle', 'borderBalle' );
          
         }
         
         this.poufTime = 5;
         this.pouf = function ( pouflist, step ) {
             
-            View.clear('borderBalle');
+            V.clear('borderBalle');
             
             if( step > this.poufTime )
                 return this.animDel( 'pouf' );
             
             for( var t = 0, l = pouflist.length; t < l;  t++ ) {
                 
-                var size = Math.round(Hex.rayon-Hex.rayon/this.poufTime*step);
-                this.hex(View['borderBalle'].ctx, pouflist[t].px, 'white', size, Hex.rayon/4);
-                this.hex(View['borderBalle'].ctx, pouflist[t].px, 'white', size);
+                var size = Math.round(H.rayon-H.rayon/this.poufTime*step);
+                this.hex(V['borderBalle'].ctx, pouflist[t].px, 'white', size, 'white', H.rayon/4);
                 
             }
             
         }
         
         this.win = function( gifts, step ) {
-            //View.clear('borderGift');
-            View.clear('gift');
+            //V.clear('borderGift');
+            V.clear('gift');
             
             for( var t = 0, l = gifts.length; t < l;  t++ ) {
                 var p = new Point(gifts[t].px.x, gifts[t].px.y);
-                p.y += Math.cos(step/10+1.5)*Hex.rayon;
+                p.y += Math.cos(step/10+1.5)*H.rayon;
                 this.tileGift( gifts[t], p );
             }
         }
         
-        this.body = function( ctx ) {
+        this.body = function() {
             
-            var rayon = Hex.drayon;
-            var width = Hex.dwidth;
+            var ctx = V.back.ctx;
             
-            ctx.rect(0,0,width,rayon*3.5);
-            ctx.fillStyle = '#222';
-            ctx.fill();
-            ctx.closePath();
             
-            var p = new Point(width/2,-rayon*1.5);
-            p.x -= width/2; p.y += rayon;
-            this.shadowIn(ctx, p, rayon);
-            p.x += width;
-            this.shadowIn(ctx, p, rayon);
-            p.x -= width/2; p.y += rayon*1.5;
-            this.shadowIn(ctx, p, rayon);
-            p.x -= width/2; p.y += rayon*1.5;
-            this.shadowIn(ctx, p, rayon);
-            p.x += width;
-            this.shadowIn(ctx, p, rayon);
+            // bande
+            var lp = [];
             
-            var data = ctx.getImageData(0,0,width,rayon*3.5);
+            var grd = ctx.createLinearGradient(H.width+H.dwidth-V.height, 0, H.width+H.dwidth+V.height, V.height);
+            grd.addColorStop(0, 'rgba(0, 0, 0, 0.2)');
+            grd.addColorStop(1, 'rgba(0, 0, 0, 1)');
+            lp.push(grd);
+                
+            grd = ctx.createLinearGradient(H.dwidth-V.height, 0, H.dwidth+V.height, V.height);
+            grd.addColorStop(0, 'rgba(0, 0, 0, 0.4)');
+            grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            lp.push(grd);
             
-            var p = new Point(Hex.zerox+Hex.dwidth-width-(Math.ceil(Hex.zerox/width)*width),-Hex.drayon+(rayon/2)*5);
-            var nw = window.innerWidth/width;
-            var nh = window.innerHeight/(rayon*3);
+            for( var x = 0;  x < 2;  x++ ) {
+                
+                ctx.beginPath();
+                
+                ctx.moveTo( x*H.dwidth, 0  );
+                ctx.lineTo( (x+1)*H.dwidth, 0 );
+                ctx.lineTo( (x+1)*H.dwidth, V.height );
+                ctx.lineTo( x*H.dwidth, V.height );
+                ctx.fillStyle = '#181818';
+                ctx.fill();
+                
+                ctx.moveTo( x*H.dwidth, 0  );
+                ctx.lineTo( (x+1)*H.dwidth, 0 );
+                ctx.lineTo( (x+1)*H.dwidth, V.height );
+                ctx.lineTo( x*H.dwidth, V.height );
+                ctx.fillStyle = lp[x%2];
+                ctx.fill();
+                ctx.closePath();
+                
+            }
             
-            for( var x = 0;  x < nw;  x++ )
-            for( var y = 0;  y < nh;  y++ )
-                ctx.putImageData(data, x*width+p.x, y*(rayon*3)-p.y);
+            var bande = ctx.getImageData(0,0,H.width,V.height);
+            
+            
+            // Cube
+            
+            var p = new Point(0,-H.drayon);
+            this.hex(ctx, p, '#181818', H.rayon);
+            this.shadowIn(ctx, p, H.rayon);
+            p.x += H.width;
+            this.hex(ctx, p, '#181818', H.rayon);
+            this.shadowIn(ctx, p, H.rayon);
+            p.x -= H.dwidth; p.y += H.rayon*1.5;
+            this.hex(ctx, p, '#181818', H.rayon);
+            this.shadowIn(ctx, p, H.rayon);
+            
+            var cube = ctx.getImageData(0,0,H.width,H.rayon*2);
+            
+            
+            // pti Cube
+            var p = new Point( H.dwidth, H.rayon);
+            this.hex(ctx, p, '#222', H.drayon);
+            this.shadowOut(ctx, p, H.drayon);
+            
+            var ptiCube = ctx.getImageData(0,0,H.width,H.rayon*2);
+            
+            
+            
+        
+            var ow = H.zerox;
+            var oh = H.zeroy;
+            
+            //bande
+            for( var x = -1;  x < A.ref.gameGridSize.x;  x++ )
+                ctx.putImageData(bande, x*H.width +ow+H.dwidth, oh+(H.rayon*1.5)*(A.ref.gameGridSize.y)+H.drayon);
+            
+            
+            //hool
+            var nw = V.width;
+            var nh = V.height/(H.rayon*3)+1;
+            for( var x = 0;  x < A.ref.gameGridSize.x;  x++ )
+            for( var y = 0;  y < A.ref.gameGridSize.y;  y++ ) {
+                var dw = !Math.isPair(y) ? H.dwidth : 0 ;
+                ctx.putImageData(cube, x*H.width +ow+dw, y*H.rayon*1.5  +oh);
+            }
+        
+            //pti
+            for( var x = -1;  x < A.ref.gameGridSize.x+1;  x++ )
+            for( var y = -1;  y < A.ref.gameGridSize.y+3;  y++ )
+                if( ( y < 0 && x > 0 )
+                 || ( x == -1 && Math.isPair(y) || x == 0 && !Math.isPair(y)
+                 || x == A.ref.gameGridSize.x ) ) {
+                    var dw = !Math.isPair(y) ? H.dwidth : 0 ;
+                    ctx.putImageData(ptiCube, x*H.width +ow -dw, y*H.rayon*1.5  +oh);
+                }
+                
+            //bande
+            for( var x = -(H.zerox/H.width|0)-1;  x < -1;  x++ )
+                ctx.putImageData(bande, x*H.width +ow+H.dwidth, 0);
+            for( var x = A.ref.gameGridSize.x;  x < A.ref.gameGridSize.x+(H.zerox/H.width|0);  x++ )
+                ctx.putImageData(bande, x*H.width +ow+H.dwidth, 0);
+            
             
         }
         
         this.alert = function ( str, time, step, thisAnim ) {
             
-            View.clear('alert');
+            V.clear('alert');
                 
             if( step > time )
                 return this.animDel(thisAnim);
             
-            var p = Hex.hexToPixel(new Point(4,5));
-            var ligne = str.split('/n');
+            var ctx = V['alert'].ctx;
+            var p = H.hexToPixel(new Point((A.ref.gameGridSize.x/2)|0,(A.ref.gameGridSize.y/2)|0));
+            var ligne = str.split('\n');
+            var proLigne = ligne.slice(0);
             
-            var rectY = p.y-Hex.rayon*3;
-            var rectHeight = ligne.length+Hex.rayon*6;
+            var rectY = p.y-H.rayon*3;
+            var rectHeight = H.rayon*2*ligne.length+H.rayon*3;
             
-            View['alert'].ctx.rect( 0, rectY, View.width, rectHeight );
-            View['alert'].ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            View['alert'].ctx.fill();
-            View['alert'].ctx.closePath();
+            V['alert'].ctx.rect( 0, rectY, V.width, rectHeight );
+            V['alert'].ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            V['alert'].ctx.fill();
+            V['alert'].ctx.closePath();
             
-            if( step == undefined ) {
-                
-                for( var t = 0, l = ligne.length; t < l ; t++ ) {
-                    p.x -= (ligne[t].length-1)/2*Hex.width;
-                    for( var c = 0, C = ligne[t].length; c < C ; c++ )
-                        this.font(View['alert'].ctx, new Point(p.x+Hex.width*c, p.y), 'white', Hex.rayon, ligne[t][c] );
-                }
-                
-            } else {
+            if( step != undefined ) {
                 
                 var letterTime = 4;
-            
-                var letter = Math.floor(step/letterTime);
+                var letter = (step/letterTime)|0;
                 var letter = letter >= str.length ? str.length : letter;
-                
-                var empty = new Array(str.length-letter+1).join(' ');
-                var ligne = (str.substr(0, letter) + empty).split('/n');
+                var length = str.split('\n').join('').length;
                 
                 for( var t = 0, l = ligne.length; t < l ; t++ ) {
-                    p.x -= (ligne[t].length-1)/2*Hex.width;
-                    p.y += t*Hex.rayon*1.5;
-                    for( var c = 0, C = ligne[t].length; c < C ; c++ )
-                        this.font(View['alert'].ctx, new Point(p.x+Hex.width*c, p.y), 'white', Hex.rayon, ligne[t][c] );
+                    var lett = ligne[t-1] ? letter-ligne[t-1].length : letter;
+                    lett = lett < 0 ? 0 : lett;
+                    var emptylength = ligne[t].length-lett+1;
+                    var empty = (emptylength <= 0) ? '' : new Array(ligne[t].length-lett+1).join(' ');
+                    proLigne[t] = (ligne[t].substr(0, lett) + empty);
                 }
                 
+            }
+            
+            for( var t = 0, l = ligne.length; t < l ; t++ ) {
+                p.x = (V.alert.width/2)-((ligne[t].length/2)|0)*H.width;
+                p.x += Math.isPair(p.y+t) ? 0 : H.dwidth;
+                for( var c = 0, C = ligne[t].length; c < C ; c++ )
+                    this.font(ctx, new Point(p.x+H.width*c, p.y+(H.rayon*1.5)*t), 'white', H.rayon, proLigne[t][c] );
             }
             
         }
         
         // model part
         
-        this.hex = function ( ctx, center, color, size, sizeBorder ) {
+        this.hex = function ( ctx, center, color, size, colorborder, sizeBorder ) {
             
             ctx.beginPath();
             
-            var p1= this.hexCorner(center, size, 0);
+            var p1= H.hexCorner(center, size, 0);
             ctx.lineTo(p1.x, p1.y);
-            var p = this.hexCorner(center, size, 1);
+            var p = H.hexCorner(center, size, 1);
             ctx.lineTo( p.x, p.y );
-            var p = this.hexCorner(center, size, 2);
+            var p = H.hexCorner(center, size, 2);
             ctx.lineTo( p.x, p.y );
-            var p = this.hexCorner(center, size, 3);
+            var p = H.hexCorner(center, size, 3);
             ctx.lineTo( p.x, p.y );
-            var p = this.hexCorner(center, size, 4);
+            var p = H.hexCorner(center, size, 4);
             ctx.lineTo( p.x, p.y );
-            var p = this.hexCorner(center, size, 5);
+            var p = H.hexCorner(center, size, 5);
             ctx.lineTo( p.x, p.y );
             ctx.lineTo(p1.x, p1.y);
             
@@ -381,12 +453,13 @@
                 ctx.lineCap="round";
                 ctx.lineJoin="round";
                 ctx.lineWidth = sizeBorder;
-                ctx.strokeStyle = color;
+                ctx.strokeStyle = colorborder;
                 ctx.stroke();
-            } else {
-                ctx.fillStyle = color;
-                ctx.fill();
             }
+            
+            ctx.fillStyle = color;
+            ctx.fill();
+            
             ctx.closePath();
             
         }
@@ -398,23 +471,6 @@
             ctx.font = sl+"px hexfont";
             ctx.fillStyle = color;
             ctx.fillText(str, p.x, p.y);
-            
-        }
-        
-        this.hexCorner = function( center, size, i, angle_start ) {
-            
-            var cacheName = size+'_'+i+'_'+angle_start;
-            var ret = Deja.read('hexCorner', cacheName);
-            if( ret !== false )
-                return new Point(ret.x + center.x, ret.y + center.y);
-            
-            var angle_start = angle_start != undefined ? angle_start : 30;
-            var angle_deg = 60 * i + angle_start;
-            var angle_rad = Math.PI / 180 * angle_deg;
-            var ret = new Point(size * Math.cos(angle_rad), size * Math.sin(angle_rad));
-            Deja.cache('hexCorner', cacheName, ret);
-            
-            return new Point(ret.x + center.x, ret.y + center.y);
             
         }
 
@@ -440,48 +496,48 @@
 
         this.shadowPart = function( ctx, mod, out, center, rayon ) {
             
-            var grd = ctx.createLinearGradient(center.x, center.y, center.x, center.y+Hex.rayon);
+            var grd = ctx.createLinearGradient(center.x, center.y, center.x, center.y+H.rayon);
                 grd.addColorStop(0, 'rgba(0, 0, 0, 0.2)');
                 grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
             var lp = [0, 1, 2, grd];
             
-            if( mod == 'left' && out == 'in' ) {
-                grd = ctx.createLinearGradient(center.x, center.y, center.x-Hex.dwidth, center.y-Hex.drayon);
+            if( 'left' === mod && 'in' === out ) {
+                grd = ctx.createLinearGradient(center.x, center.y, center.x-H.dwidth, center.y-H.drayon);
                 grd.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
                 grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
                 lp = [2, 3, 4, grd];
             }
-            if( mod == 'right' && out == 'in' ) {
-                grd = ctx.createLinearGradient(center.x, center.y, center.x+Hex.dwidth, center.y-Hex.drayon);
+            if( 'right' === mod && 'in' === out ) {
+                grd = ctx.createLinearGradient(center.x, center.y, center.x+H.dwidth, center.y-H.drayon);
                 grd.addColorStop(0, 'rgba(0, 0, 0, 0.6)');
                 grd.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
                 lp = [4, 5, 0, grd];
             }
-            if( mod == 'front' && out == 'out' ) {
-                var grd = ctx.createLinearGradient(center.x, center.y, center.x, center.y-Hex.rayon);
+            if( 'front' === mod && 'out' === out ) {
+                var grd = ctx.createLinearGradient(center.x, center.y, center.x, center.y-H.rayon);
                 grd.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
                 grd.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
                 lp = [3, 4, 5, grd];
             }
-            if( mod == 'left' && out == 'out' ) {
-                var grd = ctx.createLinearGradient(center.x, center.y, center.x-Hex.dwidth, center.y+Hex.drayon);
+            if( 'left' === mod && 'out' === out ) {
+                var grd = ctx.createLinearGradient(center.x, center.y, center.x-H.dwidth, center.y+H.drayon);
                 grd.addColorStop(0, 'rgba(0, 0, 0, 0.2)');
                 grd.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
                 lp = [1, 2, 3, grd];
             }
-            if( mod == 'right' && out == 'out' ) {
-                var grd = ctx.createLinearGradient(center.x, center.y, center.x+Hex.dwidth, center.y+Hex.drayon);
+            if( 'right' === mod && 'out' === out ) {
+                var grd = ctx.createLinearGradient(center.x, center.y, center.x+H.dwidth, center.y+H.drayon);
                 grd.addColorStop(0, 'rgba(0, 0, 0, 0)');
                 grd.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
                 lp = [5, 0, 1, grd];
             }
             
             ctx.beginPath();
-            var p1 = this.hexCorner(center, rayon, lp[0]);
+            var p1 = H.hexCorner(center, rayon, lp[0]);
             ctx.moveTo( p1.x, p1.y  );
-            var p = this.hexCorner(center, rayon, lp[1]);
+            var p = H.hexCorner(center, rayon, lp[1]);
             ctx.lineTo( p.x, p.y );
-            var p = this.hexCorner(center, rayon, lp[2]);
+            var p = H.hexCorner(center, rayon, lp[2]);
             ctx.lineTo( p.x, p.y );
             ctx.lineTo( center.x, center.y );
             
@@ -498,6 +554,8 @@
         
     }
     
-    environment['Sprite'] = new Sprite ();
+    var ready = new Event("hexbubble.class.sprite.loaded");
+    ready.instance = new Sprite();
+    document.dispatchEvent(ready);
     
-})(this);
+})();

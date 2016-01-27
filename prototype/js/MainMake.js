@@ -1,4 +1,4 @@
-;(function(environment){
+;(function(environment, undefined){
     'use strict';
     
     include([

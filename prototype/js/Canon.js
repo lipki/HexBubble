@@ -1,54 +1,87 @@
-;(function(environment){
+;(function(undefined){
     'use strict';
     
-    environment['Canon'] = function Canon (main, point, angleMin, angleMax, angleStep) {
+    function Canon () {
         
-        this.M = main;
-        this.point = point;
-        this.precision = Hex.rayon/2;
+        var A, U, C, S, G, H, V;
+        this.init = function ( clas ) {
+            A = clas[0]; U = clas[1]; C = clas[2]; S = clas[3]; G = clas[4]; H = clas[5]; V = clas[6];
+        }
         
-        this._angle = 0;
-        this.angleMin = angleMin;
-        this.angleMax = angleMax;
-        this.angleStep = angleStep;
-        
-        this.option = {debug:true, trace:true, ghost:false, switch:false, demi:false, micro:false, percante:false, bombe:false };
-        
-        this.goal;
+        this.appInit = function () {
             
-        this.types = null;
-        this.ballRes = null;
-        this.ball = null;
-        this.ballShoot = null;
-        
-        this.inshoot = true;
-        
-        this.init = function ( types ) {
+            this.point = new Point(V.width/2, V.height - H.drayon);
+            this.precision = H.drayon;
             
-            this.types = types;
-            this.ballRes = this.types[Math.floor(Math.random()*this.types.length)];
+            this._angle = 0;
+            this.angleMin = A.canonAngleMin;
+            this.angleMax = A.canonAngleMax;
+            this.angleStep = A.canonAngleStep;
+                
+            this.types = null;
+            this.ballRes = null;
             this.ball = null;
             this.ballShoot = null;
-            this.ballSwitch();
+            
+            this.inshoot = true;
+            
+            this.pico = [];
+            this.goal;
+            
+        }
         
-            //this.draw();
+        this.calcAngle = function (mouseX, mouseY) {
+            var x = mouseX-C.point.x;
+            var y = C.point.y-mouseY;
+            C.angle = Math.atan2(x, y)/Math.PI*180;
+        }
+        
+        this.calcRebondCache = [];
+        this.calcRebond = function () {
             
-            var mi = this;
-            window.addEventListener('click', function (e) {mi.pan(e)});
-            window.addEventListener('mousemove', function (e) {mi.move(e)});
-            window.addEventListener("keydown", function (e) {mi.key(e)});
+            var Vp = new Point(this.point.x, this.point.y);
+            var Va = this.angle-90;
+            var rebond = 0;
+            var rebondY = Math.abs(Math.tan(Math.PI / 180 * Va) * (M.H.aWidth-M.H.rayon*2));
             
+            var pico = [];
+            
+            for( var i = 0; i < 1200; i++ ) {
+                
+                Vp.x += this.precision * Math.cos(Math.PI / 180 * Va);
+                Vp.y += this.precision * Math.sin(Math.PI / 180 * Va);
+                
+                S.hex(M.V['canon'].ctx, pic[k].point, 'rgba(255,0,0,0.5)', rayon);
+                
+                if( Vp.y < M.H.rayon ) break;
+                
+                if( Vp.x > M.V.width-M.H.zerox-M.H.rayon || Vp.x < M.H.zerox+M.H.rayon ) {
+                    
+                    if( Vp.x > M.V.width-M.H.zerox-M.H.rayon ) Vp.x = M.V.width-M.H.zerox-M.H.rayon;
+                    if( Vp.x < M.H.zerox+M.H.rayon ) Vp.x = M.H.zerox+M.H.rayon;
+                    
+                    Vp.y = this.point.y-rebondY*rebond-rebondY/2;
+                    
+                    Va = -Va+180;
+                    rebond ++;
+                    
+                }
+                
+                pico.push({point:new Point (Math.round(Vp.x), Math.round(Vp.y)), rebond:rebond});
+            }
+        
+            return pico;
         }
         
         this.key = function (e) {
             
-            if(e.keyCode === 32) {
+            if(32 === e.keyCode) {
                 e.preventDefault();
                 this.pan();
-            } else if(e.keyCode === 37) {
+            } else if(37 === e.keyCode) {
                 e.preventDefault();
                 this.angle -= this.angleStep;
-            } else if(e.keyCode === 39) {
+            } else if(39 === e.keyCode) {
                 e.preventDefault();
                 this.angle += this.angleStep;
             }
@@ -57,26 +90,27 @@
         
         this.move = function (e) {
             
-            var x = e.layerX-this.point.x;
-            var y = this.point.y-e.layerY;
-            
-            /*var hex = Hex.pixelToHex(new Point(e.layerX, e.layerY));
-            console.log(hex);
-            if( hex && this.M.G.get(hex) ) {
-                var hex = this.M.G.get(hex);
-                console.log(hex);
-                Sprite.hex(View['balle'].ctx, hex.px, 'rgba(255,255,255,0.5)', Hex.rayon/5*4);
-                Sprite.shadowOut(View['balle'].ctx, hex.px, Hex.rayon/5*4);
-            }*/
+            if( undefined != e ) {
+                var x = e.layerX-this.point.x;
+                var y = this.point.y-e.layerY;
 
-            this.angle = Math.atan2(x, y)/Math.PI*180;
+                this.angle = Math.atan2(x, y)/Math.PI*180;
             
-            Sprite.canon( this );
-            if( this.inshoot == true || !this.option.trace ) return ;
+                if( true === this.inshoot || !M.option.trace ) return ;
+                
+                this.calc();
+                
+                if( M.option.trace ) this.trace();
+            }
             
-            this.calc();
-            
-            if( this.option.trace || this.option.debug ) this.trace();
+            M.S.canon( this );
+                
+                /*var hex = M.H.pixelToHex(new Point(e.layerX, e.layerY));
+                if( hex && M.G.get(hex) ) {
+                    var hex = M.G.get(hex);
+                    M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
+                    M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
+                }*/
             
         }
 
@@ -87,9 +121,9 @@
             this.inshoot = true;
             this.ballSwitch();
             var mi = this;
-            Sprite.animAdd( 'move', 'move', [this], null , function(){
-                View.clear('borderBalle');
-                View.clear('balle');
+            M.S.animAdd( 'move', 'move', [this], null , function(){
+                M.V.clear('borderBalle');
+                M.V.clear('balle');
                 mi.M.pan();
             });
         }
@@ -97,60 +131,51 @@
         this.ballSwitch = function () {
             this.ballShoot = this.ball;
             this.ball = this.ballRes;
-            if( this.types.length > 0 ) {
-                this.ballRes = this.types[Math.floor(Math.random()*this.types.length)];
-                Sprite.ballRes(this);
+            var typeslength = this.types.length;
+            if( typeslength > 0 ) {
+                this.ballRes = this.types[(Math.random()*typeslength) | 0];
+                M.S.ballRes(this);
             }
-            Sprite.canon( this );
+            M.S.canon( this );
         }
         
         this.calc = function () {
             
-            this.pico = this.calcPico();
+            var pic = this.calcPico();
             
-            this.list = [];
-            for ( var k = 1, l = this.pico.length ; k < l ; k++ ) {
+            this.pico.length = 0;
+            var list = [];
+            for ( var k = 1, l = pic.length ; k < l ; k++ ) {
                 
-                var hex = Hex.pixelToHex(this.pico[k].point);
-                var last = this.list[this.list.length-1];
+                if( 0 === k%2 ) this.pico.push(pic[k]);
+                var hex = M.H.pixelToHex(pic[k].point);
                 
-                console.log('---');
-                console.log(this.pico[k].point);
-                /*console.log(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0));
-                console.log(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0)));
-                console.log(this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0))));
-                console.log(this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0))).on);*/
+                if( this.M.G.get(hex).on ) break;
+                    
+                list.push(M.G.get(hex));
                 
-                View['canon'].ctx.beginPath();
-                var p = Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0);
-                View['canon'].ctx.lineTo( p.x, p.y );
-                var p = Sprite.hexCorner(this.pico[k].point, Hex.rayon, 3);
-                View['canon'].ctx.lineTo( p.x, p.y );
-                View['canon'].ctx.fillStyle = 'rgba(255,0,0,0.5)';
-                View['canon'].ctx.fill();
-                View['canon'].ctx.closePath();
+                if(  M.option.percante ) {
+                    
+                    var rayon = M.H.rayon - (M.H.rayon - M.H.dwidth)*2;
+                    if( M.option.micro )
+                        var rayon = M.H.rayon - M.H.dwidth;
+                    
+                    //M.S.hex(M.V['canon'].ctx, pic[k].point, 'rgba(255,0,0,0.5)', rayon);
+                        
+                    if( M.G.get(M.H.pixelToHex(M.S.hexCorner(pic[k].point, rayon, 0))).on ) break;
+                    if( M.G.get(M.H.pixelToHex(M.S.hexCorner(pic[k].point, rayon, 1))).on ) break;
+                    if( M.G.get(M.H.pixelToHex(M.S.hexCorner(pic[k].point, rayon, 2))).on ) break;
+                    if( M.G.get(M.H.pixelToHex(M.S.hexCorner(pic[k].point, rayon, 3))).on ) break;
+                    if( M.G.get(M.H.pixelToHex(M.S.hexCorner(pic[k].point, rayon, 4))).on ) break;
+                    if( M.G.get(M.H.pixelToHex(M.S.hexCorner(pic[k].point, rayon, 5))).on ) break;
+                    
+                }
                 
-                /*if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 0))).on ) break;
-                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 1))).on ) break;
-                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 2))).on ) break;
-                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 3))).on ) break;
-                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 4))).on ) break;
-                if( this.M.G.get(Hex.pixelToHex(Sprite.hexCorner(this.pico[k].point, Hex.rayon, 5))).on ) break;*/
-                
-                //if( ( !last || !last.point.egal(hex) ) && this.M.G.get(hex) && !this.M.G.get(hex).on ) 
-                this.list.push(this.M.G.get(hex));
             }
             
-            if(this.option.ghost) {
-                for ( var k = this.list.length-1; k > 0 ; k-- )
-                    if( !this.list[k].on ) break;
-            } else {
-                for ( var k = 0, l = this.list.length ; k < l ; k++ )
-                    if( this.list[k].on ) break;
-                k--;
-            }
-            
-            this.goal = this.list[k];
+            console.log(list)
+            if(  M.option.percante ) this.list = list;
+            this.goal = list[list.length-1];
             
         }
         
@@ -159,7 +184,7 @@
             var Vp = new Point(this.point.x, this.point.y);
             var Va = this.angle-90;
             var rebond = 0;
-            var rebondY = Math.abs(Math.tan(Math.PI / 180 * Va) * (Hex.aWidth-Hex.rayon*2));
+            var rebondY = Math.abs(Math.tan(Math.PI / 180 * Va) * (M.H.aWidth-M.H.rayon*2));
             
             var pico = [];
             
@@ -168,12 +193,12 @@
                 Vp.x += this.precision * Math.cos(Math.PI / 180 * Va);
                 Vp.y += this.precision * Math.sin(Math.PI / 180 * Va);
                 
-                if( Vp.y < Hex.rayon ) break;
+                if( Vp.y < M.H.rayon ) break;
                 
-                if( Vp.x > View.width-Hex.zerox-Hex.rayon || Vp.x < Hex.zerox+Hex.rayon ) {
+                if( Vp.x > M.V.width-M.H.zerox-M.H.rayon || Vp.x < M.H.zerox+M.H.rayon ) {
                     
-                    if( Vp.x > View.width-Hex.zerox-Hex.rayon ) Vp.x = View.width-Hex.zerox-Hex.rayon;
-                    if( Vp.x < Hex.zerox+Hex.rayon ) Vp.x = Hex.zerox+Hex.rayon;
+                    if( Vp.x > M.V.width-M.H.zerox-M.H.rayon ) Vp.x = M.V.width-M.H.zerox-M.H.rayon;
+                    if( Vp.x < M.H.zerox+M.H.rayon ) Vp.x = M.H.zerox+M.H.rayon;
                     
                     Vp.y = this.point.y-rebondY*rebond-rebondY/2;
                     
@@ -191,26 +216,21 @@
         
         this.trace = function () {
         
-            if(this.option.debug) {
-                View['canon'].ctx.rect(Hex.zerox+Hex.dwidth,Hex.rayon+Hex.drayon,Hex.aWidth-2*Hex.dwidth,window.innerHeight);
-                View['canon'].ctx.lineWidth = 1;
-                View['canon'].ctx.strokeStyle = 'red';
-                View['canon'].ctx.stroke();
-                View['canon'].ctx.closePath();
-                
-                if( this.list ) 
-                    for ( var k = 0, l = this.list.length ; k < l ; k++ ) {
-                        var size = Hex.drayon;
-                        if(this.list[k].on) size = Hex.rayon/3;
-                        Sprite.gaol( this.list[k] );
-                    }
-                
-                //for ( var k = 1, l = this.pico.length ; k < l ; k++ )
-                //    Sprite.hex(View['canon'].ctx, this.pico[k].point, 'rgba(255,0,0,0.5)', Hex.rayon/5*4);
-            }
+            /*M.V['canon'].ctx.rect(M.H.zerox+M.H.dwidth,M.H.rayon+M.H.drayon,M.H.aWidth-2*M.H.dwidth,window.innerHeight);
+            M.V['canon'].ctx.lineWidth = 1;
+            M.V['canon'].ctx.strokeStyle = 'red';
+            M.V['canon'].ctx.stroke();
+            M.V['canon'].ctx.closePath();*/
             
-            if( this.pico ) Sprite.trace( this.pico );
-            if( this.goal    ) Sprite.gaol( this.goal );
+            /*if( this.list ) 
+                for ( var k = 0, l = this.list.length ; k < l ; k++ ) {
+                    var size = M.H.drayon;
+                    if(this.list[k].on) size = M.H.rayon/3;
+                    M.S.gaol( this.list[k] );
+                }*/
+            
+            if( this.pico ) M.S.trace( this.pico );
+            if( this.goal ) M.S.gaol ( this.goal );
             
         }
     }
@@ -226,4 +246,8 @@
         }
     }
     
-})(this);
+    var ready = new Event("hexbubble.class.canon.loaded");
+    ready.instance = new Canon();
+    document.dispatchEvent(ready);
+    
+})();
