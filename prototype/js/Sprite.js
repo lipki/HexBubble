@@ -1,8 +1,464 @@
+var Main = (function (Main, undefined) {
+    'use strict';
+    
+    var V, H, A;
+    
+    // class Sprite
+    
+    function Sprite ( config ) {
+        
+        this.spriteView = config.spriteView || null;
+        this.ctxTop = config.ctxTop || null;
+        this.ctxBottom = config.ctxBottom || this.ctxTop;
+        
+    }
+    
+    Sprite.cache = {};
+    Sprite.batch = [];
+    
+    Sprite.prototype.makeSprite = function( sprites, callback ) {
+        
+        Sprite.batch.push({sprites:sprites, callback:callback});
+        
+        for( var s = 0, l = sprites.length ; s < l ;s++ ) {
+            sprites[s].batch = Sprite.batch[Sprite.batch.length-1];
+            this[sprites[s].generator](sprites[s].args, sprites[s].batch.sprites[s]);
+        }
+        
+    }
+    
+    Sprite.prototype.loaedSprite = function( e, sprite ) {
+        
+        sprite.loaded = true;
+        var batch = sprite.batch;
+        var loaded = true;
+        for( var s = 0, S = batch.sprites.length ; s < S ;s++ )
+            loaded = batch.sprites[s].loaded || false;
+        
+        if( loaded ) {
+            var sprites = batch.sprites;
+            var callback = batch.callback;
+            batch == null;
+            callback(sprites);
+        }
+        
+    }
+    
+    Sprite.prototype.spriteCube = function( config, ref ) {
+        
+        var cacheName = '_spriteCube_'+config.color+'_'+config.rayon+'_';
+        if( undefined === Sprite.cache[cacheName] ) {
+            
+            var color = config.color || '#fff';
+            var rayon = config.rayon || 100;
+            
+            this.spriteView.canvas.width = rayon*2;
+            this.spriteView.canvas.height = rayon*2;
+            this.spriteView.ctx.clearRect(0, 0, rayon*2, rayon*2);
+            
+            var p = new Point(rayon,rayon);
+            this.hex(this.spriteView.ctx, p, color, rayon);
+            this.shadow(this.spriteView.ctx, p, rayon);
+            
+            var mi = this;
+            var img = new Image();
+            img.setAttribute('data-cache', cacheName);
+            img.src = this.spriteView.canvas.toDataURL();
+            img.onload = function(e){mi.loaedSprite(e,ref)};
+            this.spriteView.canvas.appendChild(img);
+            Sprite.cache[cacheName] = ref.img = img;
+            
+        } else if( undefined !== ref )
+            this.loaedSprite( {type:'load'}, ref )
+        
+        return Sprite.cache[cacheName];
+        
+    }
+    
+    Sprite.prototype.spriteBande = function( config, ref ){
+        
+        var cacheName = '_spriteBande_'+config.height+'_'+config.color+'_'+config.rayon+'_';
+        if( undefined === Sprite.cache[cacheName] ) {
+            
+            var ctx = this.spriteView.ctx;
+            var color = config.color || '#fff';
+            var rayon = config.rayon || 100;
+            var height = (config.height || 100)+rayon;
+            
+            this.spriteView.canvas.width = rayon*2;
+            this.spriteView.canvas.height = height;
+            this.spriteView.ctx.clearRect(0, 0, rayon*2, height);
+            
+            var center = new Point(rayon,rayon);
+            
+            ctx.beginPath();
+            ctx.moveTo(rayon*2, height);
+            ctx.lineTo( 0, height);
+            var p = this.hexCorner(center, rayon, 3);
+            ctx.lineTo( p.x, p.y );
+            var p = this.hexCorner(center, rayon, 4);
+            ctx.lineTo( p.x, p.y );
+            var p = this.hexCorner(center, rayon, 5);
+            ctx.lineTo( p.x, p.y );
+            ctx.lineTo(rayon*2, height);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.closePath();
+            
+            this.shadowPart( ctx, 'front', center, rayon);
+            
+            var h1 = Math.sqrt((rayon/2)*(rayon/2)+(height/2)*(height/2));
+            var a = Math.atan((rayon/2)/(height/2));
+            var h2 = Math.cos(a)*rayon;
+            var dx = Math.cos(a)*h2;
+            var dy = Math.sin(a)*h2;
+        
+            var grd = ctx.createLinearGradient(rayon/2+dx, height/2-dy, rayon/2-dx, height/2+dy);
+                grd.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                grd.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+            
+            ctx.beginPath();
+            var p1 = this.hexCorner(center, rayon, 3);
+            ctx.moveTo( p1.x, p1.y  );
+            ctx.lineTo( center.x, center.y );
+            ctx.lineTo( center.x, height );
+            ctx.lineTo( 0, height );
+            ctx.fillStyle=grd;
+            ctx.fill();
+            ctx.closePath();
+        
+            var grd = ctx.createLinearGradient(rayon/2-dx+rayon, height/2-dy, rayon/2+dx+rayon, height/2+dy);
+                grd.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                grd.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+            
+            ctx.beginPath();
+            ctx.moveTo( center.x, center.y );
+            var p1 = this.hexCorner(center, rayon, 5);
+            ctx.lineTo( p1.x, p1.y  );
+            ctx.lineTo( rayon*2, height );
+            ctx.lineTo( center.x, height );
+            ctx.fillStyle=grd;
+            ctx.fill();
+            ctx.closePath();
+            
+            var mi = this;
+            var img = new Image();
+            img.setAttribute('data-cache', cacheName);
+            img.src = this.spriteView.canvas.toDataURL();
+            img.onload = function(e){mi.loaedSprite(e,ref)};
+            this.spriteView.canvas.appendChild(img);
+            Sprite.cache[cacheName] = ref.img = img;
+            
+        } else if( undefined !== ref )
+            this.loaedSprite( {type:'load'}, ref )
+        
+        return Sprite.cache[cacheName];
+    }
+        
+    Sprite.prototype.spriteFont = function( config, ref ){
+        
+        var cacheName = '_spriteFont_'+config.color+'_'+config.rayon+'_'+config.string+'_';
+        if( undefined === Sprite.cache[cacheName] ) {
+            
+            var ctx = this.spriteView.ctx;
+            var color = config.color || '#fff';
+            var rayon = config.rayon || 100;
+            var string = config.string || 'o';
+            
+            this.spriteView.canvas.width = rayon*3;
+            this.spriteView.canvas.height = rayon*3;
+            this.spriteView.ctx.clearRect(0, 0, rayon*3, rayon*3);
+            
+            var center = new Point(rayon*1.5,rayon*1.5);
+        
+            var sl = rayon*2;
+            var p = new Point(center.x-(sl/2 -Math.round(sl/13)), center.y+(rayon +Math.round(sl/31)));
+            ctx.font = sl+"px hexfont";
+            ctx.fillStyle = color;
+            ctx.fillText(string, p.x, p.y);
+            
+            var mi = this;
+            var img = new Image();
+            img.setAttribute('data-cache', cacheName);
+            img.src = this.spriteView.canvas.toDataURL();
+            img.onload = function(e){mi.loaedSprite(e,ref)};
+            this.spriteView.canvas.appendChild(img);
+            Sprite.cache[cacheName] = ref.img = img;
+            
+        } else if( undefined !== ref )
+            this.loaedSprite( {type:'load'}, ref )
+        
+        return Sprite.cache[cacheName];
+    }
+    
+    
+    //composant
+        
+    Sprite.prototype.hex = function ( ctx, center, color, size, colorborder, sizeBorder ) {
+        
+        ctx.beginPath();
+        
+        var p1= this.hexCorner(center, size, 0);
+        ctx.lineTo(p1.x, p1.y);
+        var p = this.hexCorner(center, size, 1);
+        ctx.lineTo( p.x, p.y );
+        var p = this.hexCorner(center, size, 2);
+        ctx.lineTo( p.x, p.y );
+        var p = this.hexCorner(center, size, 3);
+        ctx.lineTo( p.x, p.y );
+        var p = this.hexCorner(center, size, 4);
+        ctx.lineTo( p.x, p.y );
+        var p = this.hexCorner(center, size, 5);
+        ctx.lineTo( p.x, p.y );
+        ctx.lineTo(p1.x, p1.y);
+        
+        if( sizeBorder ) {
+            ctx.lineCap="round";
+            ctx.lineJoin="round";
+            ctx.lineWidth = sizeBorder;
+            ctx.strokeStyle = colorborder;
+            ctx.stroke();
+        }
+        
+        ctx.fillStyle = color;
+        ctx.fill();
+        
+        ctx.closePath();
+        
+    }
+    
+    Sprite.prototype.hexCornerCache = [];
+    Sprite.prototype.hexCorner = function( center, size, i, angle_start ) {
+        
+        var cacheName = size+'_'+i+'_'+angle_start;
+        var ret = this.hexCornerCache[cacheName];
+        if( undefined !== ret )
+            return new Point(ret.x + center.x, ret.y + center.y);
+        
+        var angle_start = angle_start != undefined ? angle_start : 30;
+        var angle_deg = 60 * i + angle_start;
+        var angle_rad = Math.PI / 180 * angle_deg;
+        var ret = new Point(size * Math.cos(angle_rad), size * Math.sin(angle_rad));
+        this.hexCornerCache[cacheName] = ret;
+        
+        return new Point(ret.x + center.x, ret.y + center.y);
+        
+    }
+
+    Sprite.prototype.shadow = function( ctx, center, size ) {
+        
+        this.shadowPart( ctx, 'front', center, size);
+        this.shadowPart( ctx, 'left' , center, size);
+        this.shadowPart( ctx, 'right', center, size);
+        
+    }
+
+    Sprite.prototype.shadowPart = function( ctx, mod, center, rayon ) {
+        
+        var grd = ctx.createLinearGradient(center.x, center.y, center.x, center.y-rayon);
+            grd.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            grd.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+        var lp = [3, 4, 5, grd];
+        
+        if( 'left' === mod ) {
+            var grd = ctx.createLinearGradient(center.x, center.y, center.x-rayon/2, center.y+rayon/2);
+            grd.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            grd.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+            lp = [1, 2, 3, grd];
+        }
+        if( 'right' === mod ) {
+            var grd = ctx.createLinearGradient(center.x, center.y, center.x+rayon/2, center.y+rayon/2);
+            grd.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            grd.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+            lp = [5, 0, 1, grd];
+        }
+        
+        ctx.beginPath();
+        var p1 = this.hexCorner(center, rayon, lp[0]);
+        ctx.moveTo( p1.x, p1.y  );
+        var p = this.hexCorner(center, rayon, lp[1]);
+        ctx.lineTo( p.x, p.y );
+        var p = this.hexCorner(center, rayon, lp[2]);
+        ctx.lineTo( p.x, p.y );
+        ctx.lineTo( center.x, center.y );
+        
+        ctx.fillStyle= lp[3];
+        ctx.fill();
+        
+        ctx.closePath();
+        
+    }
+    
+    
+    
+    
+    
+    // class BodyBack extends Sprite
+    
+    function BodyBack ( config ) {
+        
+        Sprite.call( this, config );
+        V = config.view || null;
+        H = config.hex || null;
+        A = config.app || null;
+        
+        //make sprite
+        
+        var mi = this;
+        this.makeSprite([
+            {generator:'spriteBande', args:{rayon:H.rayon, height:V.height, color:'#181818'}},
+            {generator:'spriteCube', args:{rayon:H.rayon, color:'#181818'}},
+            {generator:'spriteCube', args:{rayon:H.drayon, color:'#181818'}}
+        ], function(sprites){
+            
+            document.dispatchEvent(new Event("Main.Sprite.BodyBack.construct"));
+            
+            mi.puzzle(sprites);
+            
+        });
+        
+    }
+    
+    BodyBack.prototype = Object.create(Sprite.prototype);
+    BodyBack.prototype.constructor = BodyBack;
+    
+    BodyBack.prototype.puzzle = function( sprites ) {
+        
+        var bande = sprites[0].img;
+        var cube = sprites[1].img;
+        var ptiCube = sprites[2].img;
+        
+        var ow = H.zerox;
+        var oh = H.zeroy;
+        var ctx = this.ctxTop;
+        
+        //bande
+        for( var x = -1;  x < A.ref.gameGridSize.x+1;  x++ )
+            ctx.drawImage(bande, x*H.width +ow, oh+(H.rayon*1.5)*(A.ref.gameGridSize.y)+H.drayon);
+        
+        //hool
+        var nw = V.width;
+        var nh = V.height/(H.rayon*3)+1;
+        for( var x = -1;  x < A.ref.gameGridSize.x+1;  ++x )
+        for( var y = -1;  y < A.ref.gameGridSize.y+1;  ++y ) {
+            var dw = !Math.isPair(y) ? H.dwidth : 0 ;
+            ctx.drawImage(cube, x*H.width +ow+dw-H.dwidth, y*H.rayon*1.5  +oh-H.drayon);
+        }
+        
+        //pti
+        for( var x = -1;  x < A.ref.gameGridSize.x+1;  x++ )
+        for( var y = -1;  y < A.ref.gameGridSize.y+3;  y++ )
+            if( ( y < 0 && x > 0 )
+             || ( x == -1 && Math.isPair(y) || x == 0 && !Math.isPair(y)
+             || x == A.ref.gameGridSize.x ) ) {
+                var dw = !Math.isPair(y) ? H.dwidth : 0 ;
+                ctx.drawImage(ptiCube, x*H.width +ow-dw+H.dwidth/2, y*H.rayon*1.5  +oh+H.drayon);
+            }
+        
+        //bande
+        for( var x = -(H.zerox/H.width|0)-1;  x < -1;  x++ )
+            ctx.drawImage(bande, x*H.width +ow+H.dwidth, -H.rayon);
+        for( var x = A.ref.gameGridSize.x;  x < A.ref.gameGridSize.x+(H.zerox/H.width|0);  x++ )
+            ctx.drawImage(bande, x*H.width +ow+H.dwidth, -H.rayon);
+        
+        
+    }
+    
+    
+    
+    
+    // class Alert extends Sprite
+    
+    
+    function Alert ( config ) {
+        
+        Sprite.call( this, config );
+        V = config.view || null;
+        H = config.hex || null;
+        
+        //make sprite
+        
+        var sprites = [];
+        var alphabet = 'abcdefghijklmnopqrstuvwxyz 0123456789';
+        alphabet = alphabet.split('');
+        
+        for( var a = 0, l = alphabet.length ; a < l ; ++a )
+            sprites.push({generator:'spriteFont', args:{color:'white', rayon:H.rayon, string:alphabet[a]}});
+            
+        var mi = this;
+        this.makeSprite(sprites, function(){
+            
+            document.dispatchEvent(new Event("Main.Sprite.Alert.construct"));
+            
+        });
+        
+    }
+    
+    Alert.prototype = Object.create(Sprite.prototype);
+    Alert.prototype.constructor = Alert;
+    
+    
+    Alert.prototype.show = function ( str, step ) {
+        
+        var ctx = this.ctxTop;
+        var ligne = str.split('\n');
+        var proLigne = ligne.slice(0);
+        
+        var heightChar = ((H.rayon*1.5)*ligne.length)+H.drayon;
+        var p = new Point( V.width/2-H.rayon*1.5, V.height/2-(heightChar+H.rayon)/2 );
+        var rectY = p.y-H.rayon;
+        var rectHeight = (heightChar+H.rayon)+H.rayon*1.5;
+        
+        ctx.clearRect(0, 0, V.width, V.height);
+        
+        ctx.rect( 0, rectY, V.width, rectHeight );
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fill();
+        ctx.closePath();
+        
+        if( step != undefined ) {
+            
+            var letterTime = 4;
+            var letter = (step/letterTime)|0;
+            var letter = letter >= str.length ? str.length : letter;
+            var length = str.split('\n').join('').length;
+            
+            for( var t = 0, l = ligne.length; t < l ; t++ ) {
+                var lett = ligne[t-1] ? letter-ligne[t-1].length : letter;
+                lett = lett < 0 ? 0 : lett;
+                var emptylength = ligne[t].length-lett+1;
+                var empty = (emptylength <= 0) ? '' : new Array(ligne[t].length-lett+1).join(' ');
+                proLigne[t] = (ligne[t].substr(0, lett) + empty);
+            }
+            
+        }
+        
+        for( var t = 0, l = ligne.length; t < l ; t++ ) {
+            var ox = -((ligne[t].length/2)|0)*H.width;
+                ox += Math.isPair(t) ? 0 : H.dwidth;
+            for( var c = 0, C = ligne[t].length; c < C ; c++ ) {
+                var font = this.spriteFont({color:'white', rayon:H.rayon, string:proLigne[t][c]} );
+                ctx.drawImage(font, p.x+H.width*c +ox, p.y+(H.rayon*1.5)*t);
+            }
+        }
+        
+    }
+    
+    
+    
+    Main.Sprite = Sprite;
+    Main.Sprite.BodyBack = BodyBack;
+    Main.Sprite.Alert = Alert;
+    return Main;
+}(Main || {}));
+
+
+/*
 ;(function(undefined){
     'use strict';
     
-    /** Classe regroupant tout les assets graphique */
-    function Sprite ( main ) {
+    /** Classe regroupant tout les assets graphique *//*
+    function Sprite () {
         
         var A, U, C, S, G, H, V;
         this.init = function ( clas ) {
@@ -19,12 +475,12 @@
                 
         }
         
-        /** Boucle avec requestAnimationFrame qui gère toute les animations */
+        /** Boucle avec requestAnimationFrame qui gère toute les animations *//*
         this.animAll = function () {
             /*var thisLoop = new Date;
             var fps = 1000 / (thisLoop - this.lastLoop);
             this.lastLoop = thisLoop;
-            document.title=(Math.round(fps));*/
+            document.title=(Math.round(fps));*//*
             
             for( var a = 0, l = this.animList.length ; a < l ; a++ ) {
                 if( undefined === this.animList[a] ) continue;
@@ -48,7 +504,7 @@
          * @param {string} args - argument a fournir a la fonction.
          * @param {string} callbackStep - callback appeler a chaque étape.
          * @param {string} callbackend - callback appeler a la fin de l'animation.
-         */
+         *//*
         this.animAdd = function ( name, sprite, args, callbackStep, callbackend ) {
             this.animList.push({
                 name:name,
@@ -63,7 +519,7 @@
         /**
          * Fonction permettant de suprimmer un sprite, de la boucle d'animation.
          * @param {string} name - id de l'animation.
-         */
+         *//*
         this.animDel = function ( name ) {
             var animlist = [];
             for( var a = 0, l = this.animList.length ; a < l ; a++ )
@@ -98,7 +554,7 @@
                 this.hex(V[ctx].ctx, px, tile.type, size);
                 //this.font(V['cube'].ctx, px, 'white', size/2, String(tile.group)[0] );
                 this.shadowOut(V[ctx].ctx, px, size);
-            }*/
+            }*//*
             
         }
         
@@ -546,7 +1002,7 @@
             
             /*ctx.lineWidth = 1;
             ctx.strokeStyle = 'black';
-            ctx.stroke();*/
+            ctx.stroke();*//*
             
             ctx.closePath();
             
@@ -558,4 +1014,4 @@
     ready.instance = new Sprite();
     document.dispatchEvent(ready);
     
-})();
+})();*/

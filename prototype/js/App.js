@@ -1,69 +1,117 @@
-;(function App (undefined){
+var Main = (function (Main, undefined) {
     'use strict';
+    
+    var V, H, G, C, M, Alert;
     
     function App () {
         
-        var A, U, C, S, G, H, V, mi;
-        this.init = function ( clas ) {
-            A = clas[0]; U = clas[1]; C = clas[2]; S = clas[3]; G = clas[4]; H = clas[5]; V = clas[6];
-            mi = this;
+        this.ref = {
+            gameGridSize :{x:8, y:10},
+            ballOption:['trace', 'ghost', 'micro', 'percante', 'bombe'],
+            activeOption:{trace:false, ghost:false, micro:false, percante:false },
+            activeRound:1,
+            gameStat:0,
+            canonAngleMin:-80,
+            canonAngleMax:80,
+            canonAngleStep:1
         }
         
-        this.appStart = function () {
+        //init app
+        V = new Main.View( window.innerWidth, window.innerHeight );
+        H = this.H = new Main.Hexagone( this.ref, V );
+        G = new Main.Grid( this.ref, H, V );
+        C = new Main.Canon( this.ref, H, V.width, V.height );
+        M = new Main.Anim();
         
-            this.ref = {
-                gameGridSize :{x:8, y:10},
-                ballOption:['trace', 'ghost', 'micro', 'percante', 'bombe'],
-                activeOption:{trace:false, ghost:false, micro:false, percante:false },
-                activeRound:1,
-                gameStat:0,
-                canonAngleMin:-80,
-                canonAngleMax:80,
-                canonAngleStep:1
-            }
-            
-            //init app
-            V.appInit( window.innerWidth, window.innerHeight );
-            H.appInit();
-            S.appInit();
-            G.appInit();
-            C.appInit();
-            
-            //view
-            this.makeView();
-            
-            //sound
-            this.soundPoum = new Audio("sound/5642.wav");
-            this.soundPouf = new Audio("sound/3604.wav");
-            this.soundFall = new Audio("sound/3603.wav");
-            
-            //event
-            var mi = this;
-            window.addEventListener('click', function (e) {mi.pan(e)});
-            window.addEventListener('mousemove', function (e) {mi.move(e)});
-            window.addEventListener("keydown", function (e) {mi.key(e)});
-            
-            //start
-            var mi = this;
-            S.body();
-            S.animAdd( 'title', 'alert', ['hex\nbubble', 100], null, function(){
-                mi.loadRound();
-            });
-        }
+        //view
+        this.makeView();
         
-        this.makeView = function () {
-            V.add('sprite'     , [100, 100] );
-            V.add('back'       , [window.innerWidth, window.innerHeight] );
-            V.add('border'     , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
-            V.add('borderGift' , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy],          [H.drayon, 0]        );
-            V.add('borderBalle', [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
-            V.add('cube'       , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
-            V.add('canon'      , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
-            V.add('balle'      , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
-            V.add('gift'       , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
-            V.add('alert'      , [window.innerWidth, window.innerHeight] );
-        }
+        //sound
+        this.soundPoum = new Audio("sound/5642.wav");
+        this.soundPouf = new Audio("sound/3604.wav");
+        this.soundFall = new Audio("sound/3603.wav");
         
+        //event
+        var mi = this;
+        window.addEventListener('click', function (e) {mi.pan(e)});
+        window.addEventListener('mousemove', function (e) {mi.move(e)});
+        window.addEventListener("keydown", function (e) {mi.key(e)});
+        
+        //draw back and alpha
+        new Main.Sprite.BodyBack ( { spriteView:V.sprite, view:V, hex:H, app:this, ctxTop:V.back.ctx } );
+        Alert = new Main.Sprite.Alert ( { spriteView:V.sprite, view:V, hex:H, ctxTop:V.alert.ctx } );
+        
+        // wait alpha
+        var mi = this;
+        new Main.TAP (['Main.Sprite.BodyBack.construct', 'Main.Sprite.Alert.construct'], function(){mi.loadedAlpha()})
+        
+    }
+        
+    App.prototype.makeView = function () {
+        V.add('back'       , [window.innerWidth, window.innerHeight] );
+        V.add('border'     , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
+        V.add('borderGift' , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy],          [H.drayon, 0]        );
+        V.add('borderBalle', [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
+        V.add('cube'       , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
+        V.add('canon'      , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
+        V.add('balle'      , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
+        V.add('gift'       , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
+        V.add('alert'      , [window.innerWidth, window.innerHeight] );
+        V.add('sprite'     , [100, 100] );
+    }
+        
+    App.prototype.loadedAlpha = function () {
+        
+        //start
+        var mi = this;
+        
+        M.animAdd( 'title', function( step ) {
+            Alert.show('hex\nbubble', step );
+            if( step > 100 ) return M.animDel( 'title' );
+        }, function(){
+            mi.loadRound();
+        });
+        
+    }
+    
+    App.prototype.loadRound = function() {
+        
+        var mi = this;
+        var round = document.createElement("script");
+        round.type = "text/javascript";
+        round.src = 'maps/round'+this.ref.activeRound+'.js';
+        round.onreadystatechange = function(){mi.loadedRound()};
+        round.onload = function(){mi.loadedRound()};
+        document.body.appendChild(round);
+        
+    }
+        
+    App.prototype.loadedRound = function() {
+        
+        G.initRound(window['Round'+this.ref.activeRound]);
+        C.init(G.set);
+        this.ref.gameStat = 0;
+
+        /*var mi = this;
+        include('maps/round'+this.round+'.js',function() {
+            
+            mi.G.initRound(window['Round'+mi.round]);
+            Tile.draw(mi);
+            mi.canon.init(mi.G.set);
+            mi.win = 0;
+            
+            //S.animAdd( 'trois', 'alert', ['3', 50], null, function(){
+                //S.animAdd( 'deux', 'alert', ['2', 50], null, function(){
+                    //S.animAdd( 'un', 'alert', ['1', 50], null, function(){
+                        mi.canon.inshoot = false;
+                    //});
+                //});
+            //});
+        });*/
+        
+    }
+        
+    /*
         this.move = function (e) {
             
             /*if( undefined != e ) {
@@ -84,51 +132,7 @@
                     var hex = M.G.get(hex);
                     M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
                     M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
-                }*/
-            
-        }
-        
-        this.loadRound = function() {
-            
-            var round = document.createElement("script");
-            round.type = "text/javascript";
-            round.src = 'maps/round'+this.ref.activeRound+'.js';
-            round.onreadystatechange = function(){mi.loadedRound()};
-            round.onload = function(){mi.loadedRound()};
-            document.body.appendChild(round);
-
-            /*var mi = this;
-            include('maps/round'+this.round+'.js',function() {
-                
-                mi.G.initRound(window['Round'+mi.round]);
-                Tile.draw(mi);
-                mi.canon.init(mi.G.set);
-                mi.win = 0;
-                
-                //S.animAdd( 'trois', 'alert', ['3', 50], null, function(){
-                    //S.animAdd( 'deux', 'alert', ['2', 50], null, function(){
-                        //S.animAdd( 'un', 'alert', ['1', 50], null, function(){
-                            mi.canon.inshoot = false;
-                        //});
-                    //});
-                //});
-            });*/
-            
-        }
-        
-        this.loadedRound = function() {
-            
-            G.initRound(window['Round'+this.ref.activeRound]);
-            C.init(G.set);
-            this.ref.gameStat = 0;
-            
-            //S.animAdd( 'trois', 'alert', ['3', 50], null, function(){
-                //S.animAdd( 'deux', 'alert', ['2', 50], null, function(){
-                    //S.animAdd( 'un', 'alert', ['1', 50], null, function(){
-                        C.inshoot = false;
-                    //});
-                //});
-            //});
+                }*//*
             
         }
     }
@@ -342,8 +346,6 @@
             
         }*/
     
-    var ready = new Event("hexbubble.class.app.loaded");
-    ready.instance = new App();
-    document.dispatchEvent(ready);
-    
-})();
+    Main.App = App;
+    return Main;
+}(Main || {}));

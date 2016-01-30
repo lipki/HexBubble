@@ -1,6 +1,6 @@
 ;(function Main (undefined){
     'use strict';
-    
+    /*
     // wait for next class
     var clasList = ['app','utils','canon','sprite','grid','hexagone','view'];
     for( var t = 0, l = clasList.length ; t < l ; ++t ) {
@@ -29,5 +29,5 @@
             clasList[0].appStart();
         }
     }
-    
+    */
 })();
