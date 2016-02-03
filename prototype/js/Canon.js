@@ -1,10 +1,11 @@
 var Main = (function (Main, undefined) {
     'use strict';
     
-    var A, H;
+    var A, H, Drawer;
     
-    function Canon ( app, hex, width, height ) {
+    function Canon ( app, hex, width, height, viewcanon, viewback ) {
         
+        Drawer = new Main.Sprite.Cube.Canon ( viewcanon, viewback );
         A = app;
         H = hex;
         
@@ -29,6 +30,21 @@ var Main = (function (Main, undefined) {
         this.pico = [];
         this.goal;
         
+    }
+    
+    Canon.prototype = {
+        get angle(){
+            return this._angle;
+        },
+        set angle(a){
+            this._angle = Math.round(a/this.angleStep)*this.angleStep;
+            if( this._angle < this.angleMin ) this._angle = this.angleMin;
+            if( this._angle > this.angleMax ) this._angle = this.angleMax;
+        }
+    }
+        
+    Canon.prototype.draw = function () {
+        Drawer.drawCanon( this );
     }
         
     Canon.prototype.calcAngle = function (mouseX, mouseY) {
@@ -72,61 +88,6 @@ var Main = (function (Main, undefined) {
         }
     
         return pico;
-    }
-    
-    Canon.prototype.key = function (e) {
-        
-        if(32 === e.keyCode) {
-            e.preventDefault();
-            this.pan();
-        } else if(37 === e.keyCode) {
-            e.preventDefault();
-            this.angle -= this.angleStep;
-        } else if(39 === e.keyCode) {
-            e.preventDefault();
-            this.angle += this.angleStep;
-        }
-        
-    }
-    
-    Canon.prototype.move = function (e) {
-        
-        if( undefined != e ) {
-            var x = e.layerX-this.point.x;
-            var y = this.point.y-e.layerY;
-
-            this.angle = Math.atan2(x, y)/Math.PI*180;
-        
-            if( true === this.inshoot || !M.option.trace ) return ;
-            
-            this.calc();
-            
-            if( M.option.trace ) this.trace();
-        }
-        
-        M.S.canon( this );
-            
-            /*var hex = M.H.pixelToHex(new Point(e.layerX, e.layerY));
-            if( hex && M.G.get(hex) ) {
-                var hex = M.G.get(hex);
-                M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
-                M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
-            }*/
-        
-    }
-
-    Canon.prototype.pan = function (e) {
-        if( this.inshoot ) return ;
-        
-        this.calc();
-        this.inshoot = true;
-        this.ballSwitch();
-        var mi = this;
-        M.S.animAdd( 'move', 'move', [this], null , function(){
-            M.V.clear('borderBalle');
-            M.V.clear('balle');
-            mi.M.pan();
-        });
     }
     
     Canon.prototype.ballSwitch = function () {
@@ -233,17 +194,6 @@ var Main = (function (Main, undefined) {
         if( this.pico ) M.S.trace( this.pico );
         if( this.goal ) M.S.gaol ( this.goal );
         
-    }
-    
-    Canon.prototype = {
-        get angle(){
-            return this._angle;
-        },
-        set angle(a){
-            this._angle = Math.round(a/this.angleStep)*this.angleStep;
-            if( this._angle < this.angleMin ) this._angle = this.angleMin;
-            if( this._angle > this.angleMax ) this._angle = this.angleMax;
-        }
     }
     
     Main.Canon = Canon;

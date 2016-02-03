@@ -32,7 +32,7 @@ var Main = (function (Main, undefined) {
         
     Hexagone.prototype.hexToPixel = function (point) {
         var offset = Math.isPair(point.y) ? 0 : this.dwidth;
-        var px = new Point( this.width*point.x+this.dwidth-offset, this.rayon+point.y*this.rayon*1.5 );
+        var px = new Point( point.x*this.width-offset, point.y*this.rayon*1.5 );
         return new Point(px.x, px.y);
     }
 

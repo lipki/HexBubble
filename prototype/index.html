@@ -14,31 +14,17 @@
     <script src="js/lib/l10n.min.js"></script>
     <link rel="resource" type="application/l10n" href="locales/l10n_app.ini" />
     
-    <script src="js/Main.js" type="text/javascript"></script>
-    <script src="js/utils.js" type="text/javascript"></script>
-    <script src="js/Canon.js" type="text/javascript"></script>
-    <script src="js/Sprite.js" type="text/javascript"></script>
-    <script src="js/Grid.js" type="text/javascript"></script>
-    <script src="js/Hexagone.js" type="text/javascript"></script>
-    <script src="js/View.js" type="text/javascript"></script>
-    <script src="js/App.js" type="text/javascript"></script>
+    <script src="js/TAP.js"></script>
+    <script src="js/Anim.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/Canon.js"></script>
+    <script src="js/Sprite.js"></script>
+    <script src="js/Grid.js"></script>
+    <script src="js/Hexagone.js"></script>
+    <script src="js/View.js"></script>
+    <script src="js/App.js"></script>
     
-    <style>
-        @font-face {
-            font-family: 'hexfont';
-            src: url('fonts/hex.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        html, body, #body {
-            background: #000000;
-            margin: 0;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-    </style>
   </head>
-  <body>
+  <body onload="new Main.App()">
   </body>
 </html>

@@ -1,10 +1,11 @@
 var Main = (function (Main, undefined) {
     'use strict';
     
-    var A, H, V, G;
+    var A, H, V, G, Cube;
     
     function Grid ( app, hex, view ) {
         
+        Cube = new Main.Sprite.Cube ( view.cube, view.border );
         A = app;
         H = hex;
         V = view;
@@ -140,6 +141,7 @@ var Main = (function (Main, undefined) {
         this.type = '';
         this.group = false;
         this.near = [];
+        this.cube;
         
     }
     
@@ -148,8 +150,9 @@ var Main = (function (Main, undefined) {
     }
     
     Tile.prototype.draw = function () {
-        console.log('todo - pregen cube')
-        if( this.on ) S.tileOn( this );
+        if( this.on ) {
+            Cube.drawCube( this );
+        }
     }
     
     Tile.prototype.switchOn = function (type) {

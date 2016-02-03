@@ -1,30 +1,35 @@
 var Main = (function (Main, undefined) {
     'use strict';
     
-    var V, H, G, C, M, Alert;
+    var View, Hex, Grid, Canon, Anim, Alert, Cube, BodyBack;
     
     function App () {
         
         this.ref = {
             gameGridSize :{x:8, y:10},
-            ballOption:['trace', 'ghost', 'micro', 'percante', 'bombe'],
+            ballOption:['trace', 'ghost', 'micro', 'percante', 'bombe', 'star'],
+            ballColor:{SteelBlue:[207,100,100], DarkOrange:[33,100,100], Lime:[136,100,100], white:[0,0,100], DarkViolet:[282,100,100], Yellow:[60,100,100], Crimson:[348,100,100]},
             activeOption:{trace:false, ghost:false, micro:false, percante:false },
             activeRound:1,
-            gameStat:0,
+            gameStat:'menu',
             canonAngleMin:-80,
             canonAngleMax:80,
             canonAngleStep:1
         }
         
-        //init app
-        V = new Main.View( window.innerWidth, window.innerHeight );
-        H = this.H = new Main.Hexagone( this.ref, V );
-        G = new Main.Grid( this.ref, H, V );
-        C = new Main.Canon( this.ref, H, V.width, V.height );
-        M = new Main.Anim();
+        //init size
+        View = new Main.View( window.innerWidth, window.innerHeight );
+        Hex = this.H = new Main.Hexagone( this.ref, View );
         
         //view
         this.makeView();
+        
+        //init app
+        Grid = new Main.Grid( this.ref, Hex, View );
+        Canon = new Main.Canon( this.ref, Hex, View.width, View.height, View.canon, View.back );
+        Anim = new Main.Anim();
+        BodyBack = new Main.Sprite.Cube.BodyBack( View.back, Hex, this.ref, View );
+        Alert = new Main.Sprite.Alert ( View.alert, Hex );
         
         //sound
         this.soundPoum = new Audio("sound/5642.wav");
@@ -37,37 +42,79 @@ var Main = (function (Main, undefined) {
         window.addEventListener('mousemove', function (e) {mi.move(e)});
         window.addEventListener("keydown", function (e) {mi.key(e)});
         
-        //draw back and alpha
-        new Main.Sprite.BodyBack ( { spriteView:V.sprite, view:V, hex:H, app:this, ctxTop:V.back.ctx } );
-        Alert = new Main.Sprite.Alert ( { spriteView:V.sprite, view:V, hex:H, ctxTop:V.alert.ctx } );
-        
-        // wait alpha
+        //pregen
         var mi = this;
-        new Main.TAP (['Main.Sprite.BodyBack.construct', 'Main.Sprite.Alert.construct'], function(){mi.loadedAlpha()})
+        var font = new Promise( function(resolve) {
+            Main.Sprite.Alert.loadFont ( resolve, View.sprite )});
+        
+        font.then(function(val) {
+            var bodyBack = new Promise( function(resolve) {
+                Main.Sprite.Cube.BodyBack.pregen ( resolve, View.sprite, View.back, Hex, mi.ref, View )});
+            var alert = new Promise( function(resolve) {
+                Main.Sprite.Alert.pregen ( resolve, View.sprite, View.alert, Hex )});
+            var cube = new Promise( function(resolve) {
+                Main.Sprite.Cube.pregen ( resolve, View.sprite, View.cube, View.border, Hex, mi.ref )});
+            var canon = new Promise( function(resolve) {
+                Main.Sprite.Cube.Canon.pregen ( resolve, View.sprite )});
+            
+            Promise.all([font, bodyBack, alert, cube, canon]).then(function(){mi.pregenEnd()});
+            
+        });
         
     }
         
     App.prototype.makeView = function () {
-        V.add('back'       , [window.innerWidth, window.innerHeight] );
-        V.add('border'     , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
-        V.add('borderGift' , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy],          [H.drayon, 0]        );
-        V.add('borderBalle', [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
-        V.add('cube'       , [H.aWidth+H.rayon, H.aHeight], [H.zerox-H.drayon, H.zeroy-H.drayon], [H.drayon, H.drayon] );
-        V.add('canon'      , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
-        V.add('balle'      , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
-        V.add('gift'       , [H.aWidth, H.aHeight], [H.zerox, H.zeroy] );
-        V.add('alert'      , [window.innerWidth, window.innerHeight] );
-        V.add('sprite'     , [100, 100] );
+        View.add('back'       , [window.innerWidth, window.innerHeight] );
+        View.add('border'     , [Hex.aWidth+Hex.width, Hex.aHeight+Hex.zeroy], [Hex.zerox-Hex.dwidth, 0], [Hex.dwidth+Hex.dwidth, Hex.rayon+Hex.zeroy] );
+        View.add('borderGift' , [Hex.aWidth+Hex.width, Hex.aHeight+Hex.zeroy], [Hex.zerox-Hex.dwidth, 0], [Hex.dwidth+Hex.dwidth, Hex.rayon+Hex.zeroy] );
+        View.add('borderBalle', [Hex.aWidth+Hex.width, Hex.aHeight+Hex.zeroy], [Hex.zerox-Hex.dwidth, 0], [Hex.dwidth+Hex.dwidth, Hex.rayon+Hex.zeroy] );
+        View.add('cube'       , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy], [Hex.dwidth, Hex.rayon] );
+        View.add('canon'      , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy] );
+        View.add('balle'      , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy] );
+        View.add('gift'       , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy], [Hex.dwidth, Hex.rayon] );
+        View.add('alert'      , [window.innerWidth, window.innerHeight] );
+        View.add('sprite'     , [100, 100] );
+    }
+    
+    App.prototype.move = function (e) {
+        
+        //Canon.draw();
+        
+        /*if( undefined != e ) {
+            C.calcAngle();
+            
+            if( true !== C.inshoot && A.activeOption.trace ) {
+                C.calcRebond();
+                if( M.option.trace )
+                    S.trace();
+            }
+            
+        }
+        
+        S.canon( this );
+            
+            /*var hex = M.H.pixelToHex(new Point(e.layerX, e.layerY));
+            if( hex && M.G.get(hex) ) {
+                var hex = M.G.get(hex);
+                M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
+                M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
+            }*/
+        
     }
         
-    App.prototype.loadedAlpha = function () {
+    App.prototype.pregenEnd = function () {
+        
+        BodyBack.puzzle();
         
         //start
         var mi = this;
         
-        M.animAdd( 'title', function( step ) {
+        Anim.animAdd( 'title', function( step ) {
             Alert.show('hex\nbubble', step );
-            if( step > 100 ) return M.animDel( 'title' );
+            if( step > 100 ) {
+                View.clear('alert');
+                return Anim.animDel( 'title' );
+            }
         }, function(){
             mi.loadRound();
         });
@@ -88,71 +135,81 @@ var Main = (function (Main, undefined) {
         
     App.prototype.loadedRound = function() {
         
-        G.initRound(window['Round'+this.ref.activeRound]);
-        C.init(G.set);
-        this.ref.gameStat = 0;
+        Grid.initRound(window['Round'+this.ref.activeRound]);
+        this.ref.gameStat = 'wait';
+        
 
-        /*var mi = this;
-        include('maps/round'+this.round+'.js',function() {
-            
-            mi.G.initRound(window['Round'+mi.round]);
-            Tile.draw(mi);
-            mi.canon.init(mi.G.set);
-            mi.win = 0;
-            
-            //S.animAdd( 'trois', 'alert', ['3', 50], null, function(){
-                //S.animAdd( 'deux', 'alert', ['2', 50], null, function(){
-                    //S.animAdd( 'un', 'alert', ['1', 50], null, function(){
-                        mi.canon.inshoot = false;
-                    //});
-                //});
-            //});
+        
+        /*Anim.animAdd( 'countdown', function( step ) {
+            Alert.countdown('3', 10, step );
+            if( step > 3*10 ) {
+                View.clear('alert');
+                return Anim.animDel( 'countdown' );
+            }
+        }, function(){
+            mi.canon.inshoot = false;
         });*/
         
-    }
-        
-    /*
-        this.move = function (e) {
-            
-            /*if( undefined != e ) {
-                C.calcAngle();
-                
-                if( true !== C.inshoot && A.activeOption.trace ) {
-                    C.calcRebond();
-                    if( M.option.trace )
-                        S.trace();
-                }
-                
-            }
-            
-            S.canon( this );
-                
-                /*var hex = M.H.pixelToHex(new Point(e.layerX, e.layerY));
-                if( hex && M.G.get(hex) ) {
-                    var hex = M.G.get(hex);
-                    M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
-                    M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
-                }*//*
-            
-        }
     }
     
     //var all = [];
     /*
         
+    
+    Canon.prototype.key = function (e) {
         
-        //pregen sprite
-        //V.sprite.canvas.style.display = 'none';
-        //V.sprite.canvas.style.position = 'fixed';
-        //V.sprite.canvas.style.top = 0;
-        //V.sprite.canvas.style.left = 0;
+        if(32 === e.keyCode) {
+            e.preventDefault();
+            this.pan();
+        } else if(37 === e.keyCode) {
+            e.preventDefault();
+            this.angle -= this.angleStep;
+        } else if(39 === e.keyCode) {
+            e.preventDefault();
+            this.angle += this.angleStep;
+        }
         
-        //start
+    }
+    
+    Canon.prototype.move = function (e) {
+        
+        if( undefined != e ) {
+            var x = e.layerX-this.point.x;
+            var y = this.point.y-e.layerY;
+
+            this.angle = Math.atan2(x, y)/Math.PI*180;
+        
+            if( true === this.inshoot || !M.option.trace ) return ;
+            
+            this.calc();
+            
+            if( M.option.trace ) this.trace();
+        }
+        
+        M.S.canon( this );
+            
+            /*var hex = M.H.pixelToHex(new Point(e.layerX, e.layerY));
+            if( hex && M.G.get(hex) ) {
+                var hex = M.G.get(hex);
+                M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
+                M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
+            }
+        
+    }
+
+    Canon.prototype.pan = function (e) {
+        if( this.inshoot ) return ;
+        
+        this.calc();
+        this.inshoot = true;
+        this.ballSwitch();
         var mi = this;
-        S.animAdd( 'title', 'alert', ['hex/nbubble', 100], null, function(){
-            mi.start();
+        M.S.animAdd( 'move', 'move', [this], null , function(){
+            M.V.clear('borderBalle');
+            M.V.clear('balle');
+            mi.M.pan();
         });
-        
+    }
         
         
         

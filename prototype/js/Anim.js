@@ -11,11 +11,9 @@ var Main = (function (Main, undefined) {
     /** Boucle avec requestAnimationFrame qui gère toute les animations */
     Anim.prototype.animAll = function () {
         
-        for( var a = 0, l = this.animList.length ; a < l ; a++ ) {
+        for( var a = 0, l = this.animList.length ; a < l ; a++ )
             if( undefined !== this.animList[a] && undefined !== this.animList[a].callbackStep )
                 this.animList[a].callbackStep( this.animStep-this.animList[a].start );
-                
-        }
         
         this.animStep ++;
         var mi = this;

@@ -7,15 +7,13 @@ var Main = (function (Main, undefined) {
         this.height = height;
         
         this.content = document.createElement("div");
+        this.content.setAttribute('id', 'content');
         document.body.appendChild(this.content);
-        this.content.style.display = 'block';
-        this.content.style.position = 'absolute';
-        this.content.style.bottom = 0;
-        this.content.style.width = '100%';
-        this.content.style.height = '100%';
-            
-        this.body = document.getElementsByTagName("body")[0];
-        this.body.style.margin = 0;
+        
+        var styleNode = document.createElement("style");
+        styleNode.textContent += "html,body{background:#000000;margin:0;height:100%;position:relative;overflow:hidden}\n";
+        styleNode.textContent += "#content{display:block;position:absolute;bottom:0;width:100%;height:100%}\n";
+        document.head.appendChild(styleNode);
             
     }
         
@@ -31,6 +29,7 @@ var Main = (function (Main, undefined) {
         this[name].width = size[0];
         this[name].height = size[1];
         this[name].canvas = document.createElement("canvas");
+        this[name].canvas.setAttribute('id', name);
         this[name].canvas.width = size[0];
         this[name].canvas.height = size[1];
         this[name].canvas.setAttribute('data-name', name);
