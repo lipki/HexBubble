@@ -1,20 +1,17 @@
 var Main = (function (Main, undefined) {
     'use strict';
     
-    var A, H, V, G, Cube;
+    var App, Grid;
     
-    function Grid ( app, hex, view ) {
+    function Grid () {
         
-        Cube = new Main.Sprite.Cube ( view.cube, view.border );
-        A = app;
-        H = hex;
-        V = view;
-        G = this;
+        App = Main.App.ref;
+        Grid = this;
         
-        this.nx = A.gameGridSize.x;
-        this.ny = A.gameGridSize.y+3;
+        this.nx = App.gameGridSize[0];
+        this.ny = App.gameGridSize[1];
         
-        this.gridL = this.cooToGrid(new Point(this.nx, this.ny+1));
+        this.gridL = this.cooToGrid([this.nx, this.ny]);
         this.grid = new Array(this.gridL);
         this.set = [];
         this.groups = [];
@@ -97,32 +94,32 @@ var Main = (function (Main, undefined) {
     }
     
     Grid.prototype.cooToGrid = function(point) {
-        return point.x+this.nx*point.y;
+        return point[0]+this.nx*point[1];
     }
     
     Grid.prototype.gridToCoo = function(grid) {
-        return new Point(grid%this.nx, (grid/this.nx)|0);
+        return [grid%this.nx, (grid/this.nx)|0];
     }
     
     Grid.prototype.get = function(point) {
         var g = this.cooToGrid(point);
-        if( ( Math.isPair(point.y) || point.x != 0 ) && point.y < this.ny && this.grid[g] != undefined )
+        if( ( Math.isPair(point[1]) || point[0] != 0 ) && point[1] < this.ny && this.grid[g] != undefined )
             return this.grid[g];
         return false;
     }
     
     Grid.prototype.check = function ( tile ) {
-        this.checkAdd(tile, new Point(tile.pg.x-1, tile.pg.y));
-        this.checkAdd(tile, new Point(tile.pg.x+1, tile.pg.y));
-        this.checkAdd(tile, new Point(tile.pg.x, tile.pg.y-1));
-        this.checkAdd(tile, new Point(tile.pg.x, tile.pg.y+1));
+        this.checkAdd(tile, [tile.pg[0]-1, tile.pg[1]]);
+        this.checkAdd(tile, [tile.pg[0]+1, tile.pg[1]]);
+        this.checkAdd(tile, [tile.pg[0], tile.pg[1]-1]);
+        this.checkAdd(tile, [tile.pg[0], tile.pg[1]+1]);
         
-        if(Math.isPair(tile.pg.y)) {
-            this.checkAdd(tile, new Point(tile.pg.x+1, tile.pg.y-1));
-            this.checkAdd(tile, new Point(tile.pg.x+1, tile.pg.y+1));
+        if(Math.isPair(tile.pg[1])) {
+            this.checkAdd(tile, [tile.pg[0]+1, tile.pg[1]-1]);
+            this.checkAdd(tile, [tile.pg[0]+1, tile.pg[1]+1]);
         } else {
-            this.checkAdd(tile, new Point(tile.pg.x-1, tile.pg.y-1));
-            this.checkAdd(tile, new Point(tile.pg.x-1, tile.pg.y+1));
+            this.checkAdd(tile, [tile.pg[0]-1, tile.pg[1]-1]);
+            this.checkAdd(tile, [tile.pg[0]-1, tile.pg[1]+1]);
         }
     }
     
@@ -136,7 +133,6 @@ var Main = (function (Main, undefined) {
     function Tile ( point ) {
         
         this.pg = point;
-        this.px = H.hexToPixel(point);
         this.on = false;
         this.type = '';
         this.group = false;

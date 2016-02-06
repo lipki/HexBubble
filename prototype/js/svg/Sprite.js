@@ -1,17 +1,304 @@
 var Main = (function (Main, undefined) {
     'use strict';
     
-    var V, H, A;
+    var Hex;
     
     // class Sprite
     
-    function Sprite ( viewTop, viewBottom ) {
+    function Sprite ( hex, viewTop, viewBottom ) {
         
+        Hex = hex;
         this.viewTop = viewTop || null;
         this.viewBottom = viewBottom || this.viewTop;
         
     }
     
+    Sprite.pregen = function ( resolve ) {
+        
+        console.log('todo - load svg')
+        
+    }
+    
+    
+    
+    
+    
+    // class Back extends Sprite
+    
+    function Back ( hex, viewTop ) {
+        
+        var viewTop = new Main.View( viewTop.name, viewTop.size, viewTop.position, viewTop.offset );
+        
+        Sprite.call( this, hex, viewTop );
+        
+    }
+    
+    Back.pregen = function ( resolve, hex ) {
+        
+        /*var back = new Back( viewTop );
+        back.spriteView = spriteView;
+        V = view || null;
+        H = hex || null;
+        A = app || null;
+        
+        //make sprite
+        
+        back.makeSprite({
+            'Bande':{generator:'spriteBande', args:{rayon:H.rayon, height:V.height, color:[0,0,9]}},
+            'Cube':{generator:'spriteCube', args:{rayon:H.rayon, color:[0,0,9]}},
+            'PtiCube':{generator:'spriteCube', args:{rayon:H.drayon, color:[0,0,9]}}
+        }, function(sprites){
+            
+            Back.sprite = sprites;
+            
+            
+            
+        });*/
+        
+        resolve('Main.Sprite.Cube.Back.pregen');
+        
+    }
+    /*
+    
+    Back.prototype = Object.create(Sprite.prototype);
+    Back.prototype.constructor = Back;
+    
+    Back.prototype.spriteBande = function( config, ref ){
+        
+        var cacheName = '_spriteBande_'+config.height+'_'+config.color+'_'+config.rayon+'_';
+        if( undefined === Sprite.cache[cacheName] ) {
+            
+            var ctx = this.spriteView.ctx;
+            var color = config.color || [0,0,100];
+            var color = 'hsl('+color[0]+','+color[1]+'%,'+color[2]+'%)';
+            var rayon = config.rayon || 100;
+            var height = (config.height || 100)+rayon;
+            
+            this.spriteView.canvas.width = rayon*2;
+            this.spriteView.canvas.height = height;
+            this.spriteView.ctx.clearRect(0, 0, rayon*2, height);
+            
+            var center = new Point(rayon,rayon);
+            
+            this.shadowPart( ctx, 'front', center, color, rayon);
+            
+            var h1 = Math.sqrt((rayon/2)*(rayon/2)+(height/2)*(height/2));
+            var a = Math.atan((rayon/2)/(height/2));
+            var h2 = Math.cos(a)*rayon;
+            var dx = Math.cos(a)*h2;
+            var dy = Math.sin(a)*h2;
+        
+            var shadow = [0,0,9];
+            for(var s = 0, l = 3 ; s < l ; s++ )
+                shadow[s] = shadow[s]/2|0;
+            shadow = 'hsl('+shadow[0]+','+shadow[1]+'%,'+shadow[2]+'%)';
+        
+            var grd = ctx.createLinearGradient(rayon/2+dx, height/2-dy, rayon/2-dx, height/2+dy);
+                grd.addColorStop(0, 'hsl(0,0%,9%)');
+                grd.addColorStop(1, shadow);
+            
+            ctx.beginPath();
+            var p1 = this.hexCorner(center, rayon, 3);
+            ctx.moveTo( p1.x, p1.y  );
+            ctx.lineTo( center.x, center.y );
+            ctx.lineTo( center.x, height );
+            ctx.lineTo( p1.x, height );
+            ctx.fillStyle=grd;
+            ctx.fill();
+            ctx.closePath();
+        
+            var grd = ctx.createLinearGradient(rayon/2-dx+rayon, height/2-dy, rayon/2+dx+rayon, height/2+dy);
+                grd.addColorStop(0, 'hsl(0,0%,9%)');
+                grd.addColorStop(1, shadow);
+            
+            ctx.beginPath();
+            ctx.moveTo( center.x, center.y );
+            var p1 = this.hexCorner(center, rayon, 5);
+            ctx.lineTo( p1.x, p1.y  );
+            ctx.lineTo( p1.x, height );
+            ctx.lineTo( center.x, height );
+            ctx.fillStyle=grd;
+            ctx.fill();
+            ctx.closePath();
+            
+            this.genimgAndCache( cacheName, this.spriteView.canvas, ref );
+            
+        } else if( undefined !== ref )
+            this.loaedSprite( {type:'load'}, ref )
+        
+        return Sprite.cache[cacheName];
+    }
+
+    Back.prototype.shadowPart = function( ctx, mod, center, color, rayon, inOut ) {
+        
+        //var rayon = rayon+0.5;
+        var width = (rayon * Math.cos(Math.PI / 180 * 30))|0;
+        
+        var z = 0, o = 1, shadow = 0.4, light = 0;
+        if( inOut === true ) var z = 1, o = 0, shadow = 0.3, light = 0.1;
+        
+        var lp = [3, 4, 5];
+        if( inOut === true ) lp = [4, 5, 0];
+        var ps = this.hexCorner(center, rayon, lp[1]);
+        
+        if( 'left' === mod ) {
+            lp = [1, 2, 3];
+            if( inOut === true ) lp = [2, 3, 4];
+            ps = this.hexCorner(center, rayon, lp[1]);
+        }
+        if( 'right' === mod ) {
+            lp = [5, 0, 1];
+            if( inOut === true ) lp = [0, 1, 2];
+            ps = this.hexCorner(center, rayon, lp[1]);
+        }
+        
+        var shadow = color.split('hsl(')[1].split(')')[0].split(',');
+        shadow[2] = Number(shadow[2].split('%')[0])-5;
+        shadow = 'hsl('+shadow[0]+','+shadow[1]+','+shadow[2]+'%)';
+        
+        var grd = ctx.createLinearGradient(center.x, center.y, ps.x, ps.y);
+            grd.addColorStop(z, color);
+            grd.addColorStop(o, shadow);
+        
+        ctx.beginPath();
+        var p1 = this.hexCorner(center, rayon, lp[0]);
+        ctx.moveTo( p1.x, p1.y  );
+        var p = this.hexCorner(center, rayon, lp[1]);
+        ctx.lineTo( p.x, p.y );
+        var p = this.hexCorner(center, rayon, lp[2]);
+        ctx.lineTo( p.x, p.y );
+        ctx.lineTo( center.x, center.y );
+        
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = grd;
+            ctx.stroke();
+        
+        ctx.fillStyle= grd;
+        ctx.fill();
+        
+        ctx.closePath();
+        
+    }
+    
+    Back.prototype.puzzle = function() {
+        
+        var ow = H.zerox+H.dwidth;
+        var oh = H.zeroy+H.rayon;
+        var view = this.viewTop;
+        
+        //bande
+        for( var x = -1;  x < A.gameGridSize.x+1;  x++ )
+            this.drawSprite( view, Back.sprite.Bande, new Point(x*H.width +ow, oh+(H.rayon*1.5)*(A.gameGridSize.y)+H.drayon+V.height/2));
+        
+        //hool
+        var nw = V.width;
+        var nh = V.height/(H.rayon*3)+1;
+        for( var x = -1;  x < A.gameGridSize.x+1;  ++x )
+        for( var y = -1;  y < A.gameGridSize.y+1;  ++y ) {
+            var dw = !Math.isPair(y) ? H.dwidth : 0 ;
+            this.drawSprite( view, Back.sprite.Cube, new Point(x*H.width+dw+ow-H.dwidth, y*H.rayon*1.5+oh-H.drayon));
+        }
+        
+        //pti
+        for( var x = -1;  x < A.gameGridSize.x+1;  x++ )
+        for( var y = -1;  y < A.gameGridSize.y+1;  y++ )
+            if( ( y < 0 && x > 0 )
+             || ( x == -1 && Math.isPair(y) || x == 0 && !Math.isPair(y)
+             || x == A.gameGridSize.x ) ) {
+                var dw = !Math.isPair(y) ? H.dwidth : 0 ;
+                this.drawSprite( view, Back.sprite.PtiCube, new Point(x*H.width-dw+ow, y*H.rayon*1.5+oh));
+            }
+        
+        view.ctx.rect( H.zerox-H.dwidth, 0, H.aWidth+H.width, V.height );
+        view.ctx.lineCap="round";
+        view.ctx.lineJoin="round";
+        view.ctx.lineWidth = H.rayon/4;
+        view.ctx.strokeStyle = 'white';
+        view.ctx.stroke();
+        view.ctx.closePath();
+        
+        //bande
+        for( var x = -(H.zerox/H.width|0)-1;  x < -1;  x++ )
+            this.drawSprite( view, Back.sprite.Bande, new Point(x*H.width +ow+H.dwidth, V.height/2-H.drayon));
+        for( var x = A.gameGridSize.x;  x < A.gameGridSize.x+(H.zerox/H.width|0);  x++ )
+            this.drawSprite( view, Back.sprite.Bande, new Point(x*H.width +ow+H.dwidth, V.height/2-H.drayon));
+        
+        
+    }*/
+    
+    /*var  MySVG
+    var  SVGid
+    var  XMLdoc
+    function loadSVGasXML() {
+        var SVGFile="../SVGFiles/"+svgFileSelect.options[svgFileSelect.selectedIndex].text+".svg"
+        var loadXML = new XMLHttpRequest;
+        function handler()
+        {
+            if(loadXML.readyState == 4)
+            {
+                if (loadXML.status == 200) //---loaded ok---
+                {
+                    //---responseText---
+                    var xmlString=loadXML.responseText
+                    myXmlValue.value=xmlString
+                    //---DOMParser---
+                    var parser = new DOMParser();
+                    XMLdoc=parser.parseFromString(xmlString,"text/xml").documentElement ;
+                    SVGid=XMLdoc.getAttribute("id")
+
+                    if(stringRadio.checked==true)
+                    {   //---loads SVG as string---
+                        svgDiv.innerHTML=xmlString
+                        mySvgValue.value=xmlString
+                    }
+                    else if(elemRadio.checked==true)
+                        XMLdoc2SVG() //---loads SVG as elements---
+                }
+            }
+        }
+        if (loadXML != null)
+        {
+            loadXML.open("GET", SVGFile, true);
+            loadXML.onreadystatechange = handler;
+            loadXML.send();
+        }
+    }
+
+    function XMLdoc2SVG() {
+        svgDiv.innerHTML=""
+        //---first, clone the root with only it attributes---
+        MySVG=XMLdoc.cloneNode(false) //---empty <svg .../> ---
+
+        var elems=XMLdoc.childNodes
+        for(var k=0;k<elems.length;k++)
+        {
+            var elem=elems.item(k).cloneNode(true)
+            //--get all 'seed' polygons---
+            if(elem.nodeName=="g")
+            for(var j=0;j<elem.childNodes.length;j++)
+            {
+                var pgon=elem.childNodes.item(j)
+                pgon.setAttribute("fill","orange")
+            }
+
+            MySVG.appendChild(elem)
+        }
+        svgDiv.appendChild(MySVG)
+        mySvgValue.value=svgDiv.innerHTML
+    }
+
+    //--button---
+    function changeSomeValues() {
+        //--change polygons to fill=lime
+        var mySVG=document.getElementById(SVGid)
+        var polygons=mySVG.getElementsByTagName("polygon")
+        for(var k=0;k<polygons.length;k++)
+            polygons[k].setAttribute("fill","lime")
+
+        mySvgValue.value=svgDiv.innerHTML
+    }
+
+    /*
     Sprite.cache = {};
     Sprite.batch = [];
     
@@ -61,20 +348,23 @@ var Main = (function (Main, undefined) {
         var y = center.y - sprite.img.height/2;
         view.ctx.drawImage(sprite.img, x, y);
         
-    }
+    }*/
     
     
     
     
     // class Cube extends Sprite
     
-    function Cube ( viewTop, viewBottom ) {
+    function Cube ( view, viewTop, viewBottom ) {
+        
+        var viewTop = new Main.View( viewTop.name, [viewTop.width, viewTop.height] );
+        var viewBottom = new Main.View( viewBottom.name, [viewBottom.width, viewBottom.height] );
         
         Sprite.call( this, viewTop, viewBottom );
         
     }
     
-    Cube.pregen = function ( resolve, spriteView, viewTop, viewBottom, hex, app ) {
+    /*Cube.pregen = function ( resolve, spriteView, viewTop, viewBottom, hex, app ) {
         
         var cube = new Cube( viewTop, viewBottom );
         cube.spriteView = spriteView;
@@ -116,7 +406,7 @@ var Main = (function (Main, undefined) {
     }
     
     Cube.prototype = Object.create(Sprite.prototype);
-    Cube.prototype.constructor = BodyBack;
+    Cube.prototype.constructor = Cube;
     
     Cube.prototype.spriteCube = function( config, ref ) {
         
@@ -469,209 +759,7 @@ var Main = (function (Main, undefined) {
         }
         
         
-    }
-    
-    
-    
-    
-    
-    // class BodyBack extends Sprite
-    
-    function BodyBack ( viewTop ) {
-        
-        Sprite.call( this, viewTop );
-        
-    }
-    
-    BodyBack.pregen = function ( resolve, spriteView, viewTop, hex, app, view ) {
-        
-        var back = new BodyBack( viewTop );
-        back.spriteView = spriteView;
-        V = view || null;
-        H = hex || null;
-        A = app || null;
-        
-        //make sprite
-        
-        back.makeSprite({
-            'Bande':{generator:'spriteBande', args:{rayon:H.rayon, height:V.height, color:[0,0,9]}},
-            'Cube':{generator:'spriteCube', args:{rayon:H.rayon, color:[0,0,9]}},
-            'PtiCube':{generator:'spriteCube', args:{rayon:H.drayon, color:[0,0,9]}}
-        }, function(sprites){
-            
-            BodyBack.sprite = sprites;
-            
-            resolve('Main.Sprite.Cube.BodyBack.pregen');
-            
-        });
-        
-    }
-    
-    BodyBack.prototype = Object.create(Cube.prototype);
-    BodyBack.prototype.constructor = BodyBack;
-    
-    BodyBack.prototype.spriteBande = function( config, ref ){
-        
-        var cacheName = '_spriteBande_'+config.height+'_'+config.color+'_'+config.rayon+'_';
-        if( undefined === Sprite.cache[cacheName] ) {
-            
-            var ctx = this.spriteView.ctx;
-            var color = config.color || [0,0,100];
-            var color = 'hsl('+color[0]+','+color[1]+'%,'+color[2]+'%)';
-            var rayon = config.rayon || 100;
-            var height = (config.height || 100)+rayon;
-            
-            this.spriteView.canvas.width = rayon*2;
-            this.spriteView.canvas.height = height;
-            this.spriteView.ctx.clearRect(0, 0, rayon*2, height);
-            
-            var center = new Point(rayon,rayon);
-            
-            this.shadowPart( ctx, 'front', center, color, rayon);
-            
-            var h1 = Math.sqrt((rayon/2)*(rayon/2)+(height/2)*(height/2));
-            var a = Math.atan((rayon/2)/(height/2));
-            var h2 = Math.cos(a)*rayon;
-            var dx = Math.cos(a)*h2;
-            var dy = Math.sin(a)*h2;
-        
-            var shadow = [0,0,9];
-            for(var s = 0, l = 3 ; s < l ; s++ )
-                shadow[s] = shadow[s]/2|0;
-            shadow = 'hsl('+shadow[0]+','+shadow[1]+'%,'+shadow[2]+'%)';
-        
-            var grd = ctx.createLinearGradient(rayon/2+dx, height/2-dy, rayon/2-dx, height/2+dy);
-                grd.addColorStop(0, 'hsl(0,0%,9%)');
-                grd.addColorStop(1, shadow);
-            
-            ctx.beginPath();
-            var p1 = this.hexCorner(center, rayon, 3);
-            ctx.moveTo( p1.x, p1.y  );
-            ctx.lineTo( center.x, center.y );
-            ctx.lineTo( center.x, height );
-            ctx.lineTo( p1.x, height );
-            ctx.fillStyle=grd;
-            ctx.fill();
-            ctx.closePath();
-        
-            var grd = ctx.createLinearGradient(rayon/2-dx+rayon, height/2-dy, rayon/2+dx+rayon, height/2+dy);
-                grd.addColorStop(0, 'hsl(0,0%,9%)');
-                grd.addColorStop(1, shadow);
-            
-            ctx.beginPath();
-            ctx.moveTo( center.x, center.y );
-            var p1 = this.hexCorner(center, rayon, 5);
-            ctx.lineTo( p1.x, p1.y  );
-            ctx.lineTo( p1.x, height );
-            ctx.lineTo( center.x, height );
-            ctx.fillStyle=grd;
-            ctx.fill();
-            ctx.closePath();
-            
-            this.genimgAndCache( cacheName, this.spriteView.canvas, ref );
-            
-        } else if( undefined !== ref )
-            this.loaedSprite( {type:'load'}, ref )
-        
-        return Sprite.cache[cacheName];
-    }
-
-    BodyBack.prototype.shadowPart = function( ctx, mod, center, color, rayon, inOut ) {
-        
-        //var rayon = rayon+0.5;
-        var width = (rayon * Math.cos(Math.PI / 180 * 30))|0;
-        
-        var z = 0, o = 1, shadow = 0.4, light = 0;
-        if( inOut === true ) var z = 1, o = 0, shadow = 0.3, light = 0.1;
-        
-        var lp = [3, 4, 5];
-        if( inOut === true ) lp = [4, 5, 0];
-        var ps = this.hexCorner(center, rayon, lp[1]);
-        
-        if( 'left' === mod ) {
-            lp = [1, 2, 3];
-            if( inOut === true ) lp = [2, 3, 4];
-            ps = this.hexCorner(center, rayon, lp[1]);
-        }
-        if( 'right' === mod ) {
-            lp = [5, 0, 1];
-            if( inOut === true ) lp = [0, 1, 2];
-            ps = this.hexCorner(center, rayon, lp[1]);
-        }
-        
-        var shadow = color.split('hsl(')[1].split(')')[0].split(',');
-        shadow[2] = Number(shadow[2].split('%')[0])-5;
-        shadow = 'hsl('+shadow[0]+','+shadow[1]+','+shadow[2]+'%)';
-        
-        var grd = ctx.createLinearGradient(center.x, center.y, ps.x, ps.y);
-            grd.addColorStop(z, color);
-            grd.addColorStop(o, shadow);
-        
-        ctx.beginPath();
-        var p1 = this.hexCorner(center, rayon, lp[0]);
-        ctx.moveTo( p1.x, p1.y  );
-        var p = this.hexCorner(center, rayon, lp[1]);
-        ctx.lineTo( p.x, p.y );
-        var p = this.hexCorner(center, rayon, lp[2]);
-        ctx.lineTo( p.x, p.y );
-        ctx.lineTo( center.x, center.y );
-        
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = grd;
-            ctx.stroke();
-        
-        ctx.fillStyle= grd;
-        ctx.fill();
-        
-        ctx.closePath();
-        
-    }
-    
-    BodyBack.prototype.puzzle = function() {
-        
-        var ow = H.zerox+H.dwidth;
-        var oh = H.zeroy+H.rayon;
-        var view = this.viewTop;
-        
-        //bande
-        for( var x = -1;  x < A.gameGridSize.x+1;  x++ )
-            this.drawSprite( view, BodyBack.sprite.Bande, new Point(x*H.width +ow, oh+(H.rayon*1.5)*(A.gameGridSize.y)+H.drayon+V.height/2));
-        
-        //hool
-        var nw = V.width;
-        var nh = V.height/(H.rayon*3)+1;
-        for( var x = -1;  x < A.gameGridSize.x+1;  ++x )
-        for( var y = -1;  y < A.gameGridSize.y+1;  ++y ) {
-            var dw = !Math.isPair(y) ? H.dwidth : 0 ;
-            this.drawSprite( view, BodyBack.sprite.Cube, new Point(x*H.width+dw+ow-H.dwidth, y*H.rayon*1.5+oh-H.drayon));
-        }
-        
-        //pti
-        for( var x = -1;  x < A.gameGridSize.x+1;  x++ )
-        for( var y = -1;  y < A.gameGridSize.y+1;  y++ )
-            if( ( y < 0 && x > 0 )
-             || ( x == -1 && Math.isPair(y) || x == 0 && !Math.isPair(y)
-             || x == A.gameGridSize.x ) ) {
-                var dw = !Math.isPair(y) ? H.dwidth : 0 ;
-                this.drawSprite( view, BodyBack.sprite.PtiCube, new Point(x*H.width-dw+ow, y*H.rayon*1.5+oh));
-            }
-        
-        view.ctx.rect( H.zerox-H.dwidth, 0, H.aWidth+H.width, V.height );
-        view.ctx.lineCap="round";
-        view.ctx.lineJoin="round";
-        view.ctx.lineWidth = H.rayon/4;
-        view.ctx.strokeStyle = 'white';
-        view.ctx.stroke();
-        view.ctx.closePath();
-        
-        //bande
-        for( var x = -(H.zerox/H.width|0)-1;  x < -1;  x++ )
-            this.drawSprite( view, BodyBack.sprite.Bande, new Point(x*H.width +ow+H.dwidth, V.height/2-H.drayon));
-        for( var x = A.gameGridSize.x;  x < A.gameGridSize.x+(H.zerox/H.width|0);  x++ )
-            this.drawSprite( view, BodyBack.sprite.Bande, new Point(x*H.width +ow+H.dwidth, V.height/2-H.drayon));
-        
-        
-    }
+    }*/
     
     
     
@@ -679,7 +767,7 @@ var Main = (function (Main, undefined) {
     
     // class Canon extends Sprite
     
-    function Canon ( viewTop ) {
+    /*function Canon ( viewTop ) {
         
         Sprite.call( this, viewTop );
         
@@ -687,7 +775,7 @@ var Main = (function (Main, undefined) {
     
     Canon.pregen = function ( resolve, spriteView ) {
         
-        var back = new BodyBack();
+        var back = new Back();
         back.spriteView = spriteView;
         /*V = view || null;
         H = hex || null;
@@ -701,11 +789,11 @@ var Main = (function (Main, undefined) {
             'PtiCube':{generator:'spriteCube', args:{rayon:H.drayon, color:[0,0,9]}}
         }, function(sprites){
             
-            BodyBack.sprite = sprites;
+            Back.sprite = sprites;
             
-            resolve('Main.Sprite.Cube.BodyBack.pregen');
+            resolve('Main.Sprite.Cube.Back.pregen');
             
-        });*/
+        });*//*
         
         resolve('Main.Sprite.Cube.Canon.pregen');
         
@@ -760,8 +848,8 @@ var Main = (function (Main, undefined) {
             
             this.hex(ctx, canon.point, canon.ball, H.rayon/5*4);
             this.shadowIn(ctx, canon.point, H.rayon/5*4);
-        */
-    }
+        *//*
+    }*/
     
     
     
@@ -771,9 +859,37 @@ var Main = (function (Main, undefined) {
     
     function Alert ( viewTop ) {
         
+        var viewTop = new Main.View( viewTop.name, [viewTop.width, viewTop.height] );
+        
         Sprite.call( this, viewTop );
         
     }
+    
+    Alert.prototype = Object.create(Sprite.prototype);
+    Alert.prototype.constructor = Alert;
+    
+    Alert.loadFont = function( resolve ) {
+        
+        var styleNode = document.createElement("style");
+        styleNode.type = "text/css";
+        styleNode.textContent  = "@font-face { font-family: 'hexfont'; src: url('fonts/hex.ttf?"+Math.random()+"') format('truetype'); }";
+        styleNode.textContent += "html,body{font-family: hexfont;}\n";
+        document.head.appendChild(styleNode);
+        
+        var txt = document.createElementNS (Main.View.xmlns, "text");
+        txt.setAttributeNS (null, 'id', 'txttest');
+        txt.setAttributeNS (null, 'x', '0');
+        txt.setAttributeNS (null, 'y', '20');
+        txt.setAttributeNS (null, "fill", "red");
+        txt.innerHTML = 'o';
+        Main.View.content.appendChild(txt);
+        
+        resolve('Main.Sprite.Alert.loadFont');
+        
+    }
+    
+    
+    /*
     
     Alert.pregen = function ( resolve, spriteView, viewTop, hex ) { 
         
@@ -799,30 +915,6 @@ var Main = (function (Main, undefined) {
         });
         
     }
-    
-    Alert.loadFont = function( resolve, spriteView ) {
-        
-        var styleNode = document.createElement("style");
-        styleNode.type = "text/css";
-        styleNode.textContent = "@font-face { font-family: 'hexfont'; src: url('fonts/hex.ttf?"+Math.random()+"') format('truetype'); }";
-        document.head.appendChild(styleNode);
-        
-        spriteView.ctx.rect( 0, 0, 10, 10 );
-        spriteView.ctx.fill();
-        spriteView.ctx.font = "100px hexfont";
-        spriteView.ctx.fillStyle = '#fff';
-        
-        var si = setInterval(function() {
-            spriteView.ctx.fillText('o', -50, 90);
-            if( 255 === spriteView.ctx.getImageData(0, 0, 1, 1).data[0] ) {
-                clearInterval(si);
-                resolve('Main.Sprite.Alert.loadFont');
-            }
-        }, 10);
-    }
-    
-    Alert.prototype = Object.create(Sprite.prototype);
-    Alert.prototype.constructor = Alert;
     
     
     Alert.prototype.spriteFont = function( config, ref ){
@@ -898,14 +990,14 @@ var Main = (function (Main, undefined) {
                 this.drawSprite( view, Alert.sprite['Font'+proLigne[t][c]], new Point(p.x+H.width*c +ox, p.y+(H.rayon*1.5)*t));
         }
         
-    }
+    }*/
     
     
     
     Main.Sprite = Sprite;
     Main.Sprite.Cube = Cube;
-    Main.Sprite.Cube.BodyBack = BodyBack;
-    Main.Sprite.Cube.Canon = Canon;
+    Main.Sprite.Back = Back;
+    //Main.Sprite.Cube.Canon = Canon;
     Main.Sprite.Alert = Alert;
     return Main;
 }(Main || {}));

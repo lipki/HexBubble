@@ -1,47 +1,23 @@
-;(function(environment, undefined){
+;(function(undefined){
     'use strict';
     
     Math.isPair = function (i) {
         return 0 === i%2;
     }
     
-    /** 
-     * Class representing a point.
-     * @param {number} x - The x value.
-     * @param {number} y - The y value.
-     */
-    environment['Point'] = function Point (x, y) {
-        this.x = x;
-        this.y = y;
-        
-        /**
-         * Test for equality with another point
-         * @return {boolean} point - true for equality.
-         */
-        this.egal = function( point ) {
-            return this.x === point.x && this.y === point.y;
-        }
+    Math.Point = function Point (coo) {
+        this.coo = coo;
     }
     
-    /*environment['Deja'] = function Deja () {}
-    Deja.lcache = {};
-    
-    Deja.cache = function(func, args, res) {
-        if( undefined === Deja.lcache[func] )
-            Deja.lcache[func] = {};
-        Deja.lcache[func]['_'+args+'_'] = res;
-        return Deja.lcache[func]['_'+args+'_'];
+    Math.Point.prototype = {
+        get x(){ return coo[0] },
+        set x(a){ coo[0] = a },
+        get y(){ return coo[1] },
+        set y(a){ coo[1] = a }
     }
     
-    Deja.read = function(func, args) {
-        if( undefined === Deja.lcache[func] )
-            Deja.lcache[func] = {};
-        if( Deja.lcache[func]['_'+args+'_'] != undefined )
-            return Deja.lcache[func]['_'+args+'_'];
-        return false;
-    }*/
+    Math.Point.egal = function( coo ) {
+        return this.coo[0] === coo[0] && this.coo[1] === coo[1];
+    }
     
-    var ready = new Event("hexbubble.class.utils.loaded");
-    document.dispatchEvent(ready);
-    
-})(this);
+})();

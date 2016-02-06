@@ -1,40 +1,80 @@
 var Main = (function (Main, undefined) {
     'use strict';
     
-    var View, Hex, Grid, Canon, Anim, Alert, Cube, BodyBack;
+    //private
+    var Hex, Back, Alert, Cube, Grid;
     
+    //constructor
     function App () {
         
+        Main.App = this;
+        
         this.ref = {
-            gameGridSize :{x:8, y:10},
+            gameGridSize :[8, 10],
             ballOption:['trace', 'ghost', 'micro', 'percante', 'bombe', 'star'],
-            ballColor:{SteelBlue:[207,100,100], DarkOrange:[33,100,100], Lime:[136,100,100], white:[0,0,100], DarkViolet:[282,100,100], Yellow:[60,100,100], Crimson:[348,100,100]},
+            ballColor:['Orange', 'Yellow', 'Green', 'Blue', 'Purple', 'Red', 'White'],
             activeOption:{trace:false, ghost:false, micro:false, percante:false },
             activeRound:1,
             gameStat:'menu',
             canonAngleMin:-80,
             canonAngleMax:80,
-            canonAngleStep:1
+            canonAngleStep:1,
+            assets: {
+                back:[474.597,79.291],
+                font:{
+                    "abcdefghijklm":[50,1250],
+                    "nopqrstuvwxyz":[50,1350],
+                    "0123456789 ":[50,1450]
+                },
+                cube:{
+                    color:[50,1550],
+                    option:[50,1650],
+                    gift:[50,1750],
+                    border:[800,1600],
+                    borderStar:[1000,1600]
+                }
+            }
         }
         
         //init size
-        View = new Main.View( window.innerWidth, window.innerHeight );
-        Hex = this.H = new Main.Hexagone( this.ref, View );
+        Hex = new Main.Hexagone( window.innerWidth, window.innerHeight );
+        this.ref.rapport = 100 / (Hex.rayon*2);
         
         //view
-        this.makeView();
+        Back = new Main.Sprite.Back ( Hex, {name:'back', size:[window.innerWidth, window.innerHeight]} );
+        Cube = new Main.Sprite.Cube ( Hex, {name:'cube'  , size:[Hex.aWidth, Hex.aHeight]             , position:[Hex.zerox, Hex.zeroy]   , offset:[Hex.dwidth, Hex.rayon]},
+                                           {name:'border', size:[Hex.aWidth+Hex.width, Hex.aHeight+Hex.zeroy], position:[Hex.zerox-Hex.dwidth, 0], offset:[Hex.dwidth+Hex.dwidth, Hex.rayon+Hex.zeroy]} );
+        Alert = new Main.Sprite.Alert ( Hex, {name:'alert', size:[window.innerWidth, window.innerHeight]} );
         
         //init app
-        Grid = new Main.Grid( this.ref, Hex, View );
-        Canon = new Main.Canon( this.ref, Hex, View.width, View.height, View.canon, View.back );
-        Anim = new Main.Anim();
-        BodyBack = new Main.Sprite.Cube.BodyBack( View.back, Hex, this.ref, View );
-        Alert = new Main.Sprite.Alert ( View.alert, Hex );
+        Grid = new Main.Grid( this.ref );
         
         //sound
         this.soundPoum = new Audio("sound/5642.wav");
         this.soundPouf = new Audio("sound/3604.wav");
         this.soundFall = new Audio("sound/3603.wav");
+        
+        //pregen sprite
+        var mi = this;
+        var font = new Promise( Main.Sprite.Alert.loadFont );
+        
+        font.then(function(val) {
+            var assets = new Promise( function(resolve) {
+                Main.Sprite.pregen ( resolve )});
+            /*var canon = new Promise( function(resolve) {
+                Main.Sprite.Cube.Canon.pregen ( resolve, View.sprite )});*/
+            
+            Promise.all([assets]).then(function(){mi.pregenEnd()});
+            //Promise.all([back, alert, cube, canon]).then(function(){mi.pregenEnd()});
+            
+        });
+        
+        
+        /*
+        
+        //init app
+        Canon = new Main.Canon( this.ref, Hex, View.width, View.height, View.canon, View.back );
+        Anim = new Main.Anim();
         
         //event
         var mi = this;
@@ -42,72 +82,38 @@ var Main = (function (Main, undefined) {
         window.addEventListener('mousemove', function (e) {mi.move(e)});
         window.addEventListener("keydown", function (e) {mi.key(e)});
         
-        //pregen
-        var mi = this;
-        var font = new Promise( function(resolve) {
-            Main.Sprite.Alert.loadFont ( resolve, View.sprite )});
-        
-        font.then(function(val) {
-            var bodyBack = new Promise( function(resolve) {
-                Main.Sprite.Cube.BodyBack.pregen ( resolve, View.sprite, View.back, Hex, mi.ref, View )});
-            var alert = new Promise( function(resolve) {
-                Main.Sprite.Alert.pregen ( resolve, View.sprite, View.alert, Hex )});
-            var cube = new Promise( function(resolve) {
-                Main.Sprite.Cube.pregen ( resolve, View.sprite, View.cube, View.border, Hex, mi.ref )});
-            var canon = new Promise( function(resolve) {
-                Main.Sprite.Cube.Canon.pregen ( resolve, View.sprite )});
-            
-            Promise.all([font, bodyBack, alert, cube, canon]).then(function(){mi.pregenEnd()});
-            
-        });
-        
-    }
-        
-    App.prototype.makeView = function () {
-        View.add('back'       , [window.innerWidth, window.innerHeight] );
-        View.add('border'     , [Hex.aWidth+Hex.width, Hex.aHeight+Hex.zeroy], [Hex.zerox-Hex.dwidth, 0], [Hex.dwidth+Hex.dwidth, Hex.rayon+Hex.zeroy] );
-        View.add('borderGift' , [Hex.aWidth+Hex.width, Hex.aHeight+Hex.zeroy], [Hex.zerox-Hex.dwidth, 0], [Hex.dwidth+Hex.dwidth, Hex.rayon+Hex.zeroy] );
-        View.add('borderBalle', [Hex.aWidth+Hex.width, Hex.aHeight+Hex.zeroy], [Hex.zerox-Hex.dwidth, 0], [Hex.dwidth+Hex.dwidth, Hex.rayon+Hex.zeroy] );
-        View.add('cube'       , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy], [Hex.dwidth, Hex.rayon] );
-        View.add('canon'      , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy] );
-        View.add('balle'      , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy] );
-        View.add('gift'       , [Hex.aWidth, Hex.aHeight], [Hex.zerox, Hex.zeroy], [Hex.dwidth, Hex.rayon] );
-        View.add('alert'      , [window.innerWidth, window.innerHeight] );
-        View.add('sprite'     , [100, 100] );
-    }
-    
-    App.prototype.move = function (e) {
-        
-        //Canon.draw();
-        
-        /*if( undefined != e ) {
-            C.calcAngle();
-            
-            if( true !== C.inshoot && A.activeOption.trace ) {
-                C.calcRebond();
-                if( M.option.trace )
-                    S.trace();
-            }
-            
-        }
-        
-        S.canon( this );
-            
-            /*var hex = M.H.pixelToHex(new Point(e.layerX, e.layerY));
-            if( hex && M.G.get(hex) ) {
-                var hex = M.G.get(hex);
-                M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
-                M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
-            }*/
+        //pregen calc
+        //tile.px = H.hexToPixel(point);*/
         
     }
         
     App.prototype.pregenEnd = function () {
         
-        BodyBack.puzzle();
+        Back.puzzle(Hex);
+        
+        Alert.spriteFont( Hex, [100,100], 'a' );
+        
+        Cube.spriteCube( Hex, [100,100], 'Orange' );
+        Cube.spriteCube( Hex, [100,200], 'Yellow' );
+        Cube.spriteCube( Hex, [100,300], 'Green' );
+        Cube.spriteCube( Hex, [100,400], 'Blue' );
+        Cube.spriteCube( Hex, [100,500], 'Purple' );
+        Cube.spriteCube( Hex, [100,600], 'Red' );
+        Cube.spriteCube( Hex, [100,700], 'White' );
+        Cube.spriteCube( Hex, [200,100], 'trace' );
+        Cube.spriteCube( Hex, [200,200], 'ghost' );
+        Cube.spriteCube( Hex, [200,300], 'micro' );
+        Cube.spriteCube( Hex, [200,400], 'percante' );
+        Cube.spriteCube( Hex, [200,500], 'bombe' );
+        Cube.spriteCube( Hex, [200,600], 'star' );
+        Cube.spriteCube( Hex, [300,100], 'fixed' );
+        Cube.spriteCube( Hex, [300,200], 'gift' );
+        Cube.spriteCube( Hex, [300+Hex.dwidth,200+Hex.rayon*1.5], 'gift' );
+        Cube.spriteCube( Hex, [300,400], 'gift' );
+        Cube.spriteCube( Hex, [300,500], 'gift' );
         
         //start
-        var mi = this;
+        /*var mi = this;
         
         Anim.animAdd( 'title', function( step ) {
             Alert.show('hex\nbubble', step );
@@ -117,7 +123,15 @@ var Main = (function (Main, undefined) {
             }
         }, function(){
             mi.loadRound();
-        });
+        });*/
+        
+        //antipirate
+        Main.Sprite.Back = null;
+        Main.Sprite.Alert = null;
+        Main.View = null;
+        Main.App = null;
+        Main.Hexagone = null;
+        Main.Grid = null;
         
     }
     
@@ -149,6 +163,32 @@ var Main = (function (Main, undefined) {
         }, function(){
             mi.canon.inshoot = false;
         });*/
+        
+    }
+    
+    App.prototype.move = function (e) {
+        
+        //Canon.draw();
+        
+        /*if( undefined != e ) {
+            C.calcAngle();
+            
+            if( true !== C.inshoot && A.activeOption.trace ) {
+                C.calcRebond();
+                if( M.option.trace )
+                    S.trace();
+            }
+            
+        }
+        
+        S.canon( this );
+            
+            /*var hex = M.H.pixelToHex(new Point(e.layerX, e.layerY));
+            if( hex && M.G.get(hex) ) {
+                var hex = M.G.get(hex);
+                M.S.hex(M.V['canon'].ctx, hex.px, 'rgba(255,255,255,0.5)', M.H.rayon/5*4);
+                M.S.shadowOut(M.V['canon'].ctx, hex.px, M.H.rayon/5*4);
+            }*/
         
     }
     
